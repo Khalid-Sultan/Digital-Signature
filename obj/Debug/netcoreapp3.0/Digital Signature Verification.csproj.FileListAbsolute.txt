@@ -17,3 +17,5 @@ A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\D
 A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\Digital Signature Verification.pdb
 A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\ClientWindow.g.cs
 A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\ClientWindow.baml
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\ServerWindow.g.cs
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\ServerWindow.baml

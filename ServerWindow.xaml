@@ -1,4 +1,4 @@
-﻿<Window x:Class="Digital_Signature_Verification.ClientWindow"
+﻿<Window x:Class="Digital_Signature_Verification.ServerWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -9,6 +9,11 @@
         Title="Sender Window" 
         Height="450" Width="800" 
         MinHeight="450" MinWidth="800">
+    <Window.Resources>
+        <DataTemplate x:Key="ListViewItemTemplate1">
+            <Grid/>
+        </DataTemplate>
+    </Window.Resources>
 
     <Grid Height="430">
         <StackPanel Height="430">
@@ -16,28 +21,34 @@
                 <StackPanel Width="400">
                     <Label Content="Connection Details"/>
                     <StackPanel Orientation="Horizontal">
-                        <Label Content="Connection Status : " Width="300"/>
-                        <Label Content="Not Connected" Name="Client_Status" Width="100"/>
+                        <Label Content="Server Status : " Width="150"/>
+                        <Label Content="Not Started" Name="Server_Status" Width="250" HorizontalContentAlignment="Right"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Connected Clients : " Width="150"/>
+                        <Label Content="No Clients Connected Yet." Name="Connected_Clients" Width="250" HorizontalContentAlignment="Right"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label Content="Port Number : " Width="150"/>
-                        <TextBox Text="" Name="Port_Number_Client" Width="250"/>
+                        <TextBox Text="" Name="Port_Number_Server" Width="250"/>
                     </StackPanel>
-                    <Button Content="Establish Connection" Click="Button_Click" Height="35"/>
-                    <Button Content="Disconnect" IsEnabled="False" Height="35"/>
+                    <Button Content="Start Server" Click="Button_Click" Height="35"></Button>
+                    <Button Content="Stop Server" IsEnabled="False" Height="35"/>
+
                     <Label Content="Received Files"/>
-                    <StackPanel x:Name="Received_Files" Height="190">
+                    <StackPanel x:Name="Received_Files" Height="170">
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Width="400">
                     <Label Content="Document Preview"/>
-                    <TextBox Text="Content Of Document" TextWrapping="Wrap" Height="340"/>
+                    <TextBox Text="Content Of Document" TextWrapping="Wrap" Height="370"/>
                 </StackPanel>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Height="45">
-                <Button Content="Send File" Width="400" Click="Button_Click_1"/>
                 <Button Content="Verify File" Width="400"/>
+                <Button Content="Send File" Width="400"/>
             </StackPanel>
         </StackPanel>
     </Grid>
 </Window>
+

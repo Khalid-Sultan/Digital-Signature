@@ -6,43 +6,14 @@
         xmlns:local="clr-namespace:Digital_Signature_Verification"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="Sender Window" 
-        Height="450" Width="800" 
-        MinHeight="450" MinWidth="800">
+        Title="Main Window" 
+        Height="150" Width="200" 
+        MinHeight="150" MinWidth="200"> 
 
-    <Grid Height="430">
-        <StackPanel Height="430">
-            <StackPanel Orientation="Horizontal" Height="375">
-                <StackPanel Width="400">
-                    <Label Content="Connection Details"/>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Server Status : " Width="300"/>
-                        <Label Content="Not Started" Width="100"/>
-                    </StackPanel>
-                    <Label Content="IP Address : "/>
-                    <TextBox Text=""/>
-                    <Label Content="Port Number : "/>
-                    <TextBox Text=""/>
-                    <Button Content="Start Server"></Button>
-
-                    <Label Content="Received Files"/>
-                    <ListView Height="186">
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn/>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                </StackPanel>
-                <StackPanel Width="400">
-                    <Label Content="Document Preview"/>
-                    <TextBox Text="Content Of Document" TextWrapping="Wrap" Height="370"/>
-                </StackPanel>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Height="45">
-                <Button Content="Verify File" Width="400"/>
-                <Button Content="Send File" Width="400"/>
-            </StackPanel>
+    <Grid Height="100">
+        <StackPanel>
+            <Button Content="Server" Height="50" Click="Button_Click"/>
+            <Button Content="Client" Height="50" Click="Button_Click_1"/>
         </StackPanel>
     </Grid>
 </Window>
