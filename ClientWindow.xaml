@@ -1,4 +1,4 @@
-﻿<Window x:Class="Digital_Signature_Verification.MainWindow"
+﻿<Window x:Class="Digital_Signature_Verification.ClientWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -16,14 +16,14 @@
                 <StackPanel Width="400">
                     <Label Content="Connection Details"/>
                     <StackPanel Orientation="Horizontal">
-                        <Label Content="Server Status : " Width="300"/>
-                        <Label Content="Not Started" Width="100"/>
+                        <Label Content="Connection Status : " Width="300"/>
+                        <Label Content="Not Connected" Width="100"/>
                     </StackPanel>
                     <Label Content="IP Address : "/>
                     <TextBox Text=""/>
                     <Label Content="Port Number : "/>
                     <TextBox Text=""/>
-                    <Button Content="Start Server"></Button>
+                    <Button Content="Establish Connection"/>
 
                     <Label Content="Received Files"/>
                     <ListView Height="186">
