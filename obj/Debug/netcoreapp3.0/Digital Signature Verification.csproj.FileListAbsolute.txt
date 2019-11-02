@@ -1,0 +1,17 @@
+A:\VisualStudioProjects\Digital Signature Verification\bin\Debug\netcoreapp3.0\Digital Signature Verification.exe
+A:\VisualStudioProjects\Digital Signature Verification\bin\Debug\netcoreapp3.0\Digital Signature Verification.deps.json
+A:\VisualStudioProjects\Digital Signature Verification\bin\Debug\netcoreapp3.0\Digital Signature Verification.runtimeconfig.json
+A:\VisualStudioProjects\Digital Signature Verification\bin\Debug\netcoreapp3.0\Digital Signature Verification.runtimeconfig.dev.json
+A:\VisualStudioProjects\Digital Signature Verification\bin\Debug\netcoreapp3.0\Digital Signature Verification.dll
+A:\VisualStudioProjects\Digital Signature Verification\bin\Debug\netcoreapp3.0\Digital Signature Verification.pdb
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\Digital Signature Verification.csprojAssemblyReference.cache
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\MainWindow.g.cs
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\App.g.cs
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\Digital Signature Verification_MarkupCompile.cache
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\Digital Signature Verification_MarkupCompile.lref
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\MainWindow.baml
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\Digital Signature Verification.g.resources
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\Digital Signature Verification.AssemblyInfoInputs.cache
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\Digital Signature Verification.AssemblyInfo.cs
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\Digital Signature Verification.dll
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\Digital Signature Verification.pdb
