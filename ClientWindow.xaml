@@ -21,10 +21,10 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label Content="Port Number : " Width="150"/>
-                        <TextBox Text="" Name="Port_Number_Client" Width="250"/>
+                        <TextBox Text="1000" Name="Port_Number_Client" Width="250"/>
                     </StackPanel>
-                    <Button Content="Establish Connection" Click="Button_Click" Height="35"/>
-                    <Button Content="Disconnect" IsEnabled="False" Height="35"/>
+                    <Button Name="Client_Start" Content="Establish Connection" Click="Button_Click" Height="35"/>
+                    <Button Name="Client_Stop" Content="Disconnect" IsEnabled="False" Height="35" Click="Button_Click_2"/>
                     <Label Content="Received Files"/>
                     <StackPanel x:Name="Received_Files" Height="190">
                     </StackPanel>

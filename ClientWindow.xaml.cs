@@ -49,7 +49,7 @@ namespace Digital_Signature_Verification
 
             try
             {
-                //Connect Socket to the remote end point
+                //Connect Socket to the remote end-point
                 client.Connect(localEndPoint);
                 Client_Status.Content = "Connected To Server";
             }
@@ -76,17 +76,23 @@ namespace Digital_Signature_Verification
 
                 Label label = new Label();
                 label.Content = "Received Message from Server";
-                Received_Files.Children.Add(label);
-
-                //Close Socket using Close method
-                client.Shutdown(SocketShutdown.Both);
-                client.Close();
-
+                Received_Files.Children.Add(label);  
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message.ToString());
             }
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            Client_Start.IsEnabled = true;
+            Client_Stop.IsEnabled = false;
+            MessageBox.Show("Server has been Shut Down"); 
+            Client_Status.Content = "Not Started";
+            //Close Socket using Close method
+            client.Shutdown(SocketShutdown.Both);
+            client.Close();
         }
     }
 }

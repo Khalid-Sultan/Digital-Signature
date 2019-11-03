@@ -19,6 +19,7 @@ namespace Digital_Signature_Verification
     /// </summary>
     public partial class ServerWindow : Window
     {
+        Socket listener;
         public ServerWindow()
         {
             InitializeComponent();
@@ -45,7 +46,7 @@ namespace Digital_Signature_Verification
             IPEndPoint localEndPoint = new IPEndPoint(ipAddr, connectionProperties.port_number);
 
             //Create TCP/IP Socket using Sockets
-            Socket listener = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            listener = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             try
             {
                 //Using Binding method, associate the network address to the socket
@@ -53,41 +54,54 @@ namespace Digital_Signature_Verification
 
                 //Using Listening method, set the maximum list of clients to accept
                 listener.Listen(5);
-                while (true)
-                {
-                    Server_Status.Content = "Waiting For Connection";
-                    Socket client = listener.Accept();
 
-                    byte[] bytes = new byte[1024];
-                    string data = null;
+                Server_Start.IsEnabled = false;
+                Server_Stop.IsEnabled = true;
 
-                    while (true)
-                    {
-                        int numByte = client.Receive(bytes);
-                        data += Encoding.ASCII.GetString(bytes, 0, numByte);
-                        if (data.IndexOf("<EOF>") > -1) break;
-                    }
-                    MessageBox.Show("File Received");
-                    Label label = new Label();
-                    label.Content = "Received Message from Client";
-                    Received_Files.Children.Add(label);
-
-                    byte[] message = Encoding.ASCII.GetBytes("File Received By Server");
-
-                    //Send an acknowledgment message back to the client
-                    client.Send(message);
-
-                    //Close client socket using Closing method
-                    client.Shutdown(SocketShutdown.Both);
-                    client.Close();
-
-                }
+                ListenServer();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message.ToString());
             }
+        }
+        private async void ListenServer()
+        {
+            while (true)
+            {
+                Server_Status.Content = "Waiting For Connection";
+                Socket client = await listener.AcceptAsync();
+                Connected_Clients.Content = "Some clients are Connected";
 
+                byte[] bytes = new byte[1024];
+                string data = null;
+
+                while (true)
+                {
+                    int numByte = client.Receive(bytes);
+                    data += Encoding.ASCII.GetString(bytes, 0, numByte);
+                    if (data.IndexOf("<EOF>") > -1) break;
+                }
+                MessageBox.Show("File Received");
+                Label label = new Label();
+                label.Content = "Received Message from Client";
+                Received_Files.Children.Add(label);
+
+                byte[] message = Encoding.ASCII.GetBytes("File Received By Server");
+
+                //Send an acknowledgment message back to the client
+                client.Send(message);
+            }
+        }
+
+        private void Server_Stop_Click(object sender, RoutedEventArgs e)
+        {
+            Server_Start.IsEnabled = true;
+            Server_Stop.IsEnabled = false;
+            MessageBox.Show("Server has been Shut Down");
+            Connected_Clients.Content = "No clients are Connected";
+            Server_Status.Content = "Not Started";
+            listener.Close();
         }
     }
 }
