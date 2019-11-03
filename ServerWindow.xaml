@@ -3,52 +3,91 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:Digital_Signature_Verification"
-        mc:Ignorable="d"
-        ResizeMode="NoResize"
-        Title="Sender Window" 
-        Height="450" Width="800" 
-        MinHeight="450" MinWidth="800">
+        xmlns:local1="clr-namespace:Digital_Signature_Verification.Utils"
+        mc:Ignorable="d" FontSize="14" 
+        Title="Server" Height="385.665" Width="526.886">
     <Window.Resources>
-        <DataTemplate x:Key="ListViewItemTemplate1">
-            <Grid/>
-        </DataTemplate>
+        <local1:BooleanToStartStopConverter x:Key="BooleanToStartStopConverter" />
+        <local1:BooleanToServerStatusMessageConverter x:Key="BooleanToServerStatusMessageConverter" />
+        <local1:BooleanToBrushConverter x:Key="BooleanToBrushConverter" />
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Padding" Value="3"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Width" Value="120"/>
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Width" Value="70"/>
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+        <Style TargetType="ListBox">
+            <Setter Property="Margin" Value="3"/>
+        </Style>
     </Window.Resources>
-
-    <Grid Height="430">
-        <StackPanel Height="430">
-            <StackPanel Orientation="Horizontal" Height="375">
-                <StackPanel Width="400">
-                    <Label Content="Connection Details"/>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Server Status : " Width="150"/>
-                        <Label Content="Not Started" Name="Server_Status" Width="250" HorizontalContentAlignment="Right"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Connected Clients : " Width="150"/>
-                        <Label Content="No Clients Connected Yet." Name="Connected_Clients" Width="250" HorizontalContentAlignment="Right"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Port Number : " Width="150"/>
-                        <TextBox Text="1000" Name="Port_Number_Server" Width="250"/>
-                    </StackPanel>
-                    <Button Content="Start Server" Click="Button_Click" Height="35" Name="Server_Start"/>
-                    <Button Content="Stop Server" IsEnabled="False" Height="35" Name="Server_Stop" Click="Server_Stop_Click"/>
-
-                    <Label Content="Received Files"/>
-                    <StackPanel x:Name="Received_Files" Height="170">
-                    </StackPanel>
+    <DockPanel Margin="0 10 0 0">
+        <StatusBar Name="sbMain" DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <TextBlock Text="{Binding Path=IsServerActive,Converter={StaticResource BooleanToServerStatusMessageConverter}}" Background="{Binding Path=IsServerActive,Converter={StaticResource BooleanToBrushConverter}}" />
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Active users: " Width="auto"/>
+                    <TextBlock Text="{Binding Path=ActiveClients}" Width="auto"/>
                 </StackPanel>
-                <StackPanel Width="400">
-                    <Label Content="Document Preview"/>
-                    <TextBox Text="Content Of Document" TextWrapping="Wrap" Height="370"/>
-                </StackPanel>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Height="45">
-                <Button Content="Verify File" Width="400"/>
-                <Button Content="Send File" Width="400"/>
-            </StackPanel>
-        </StackPanel>
-    </Grid>
+            </StatusBarItem>
+        </StatusBar>
+        <DockPanel IsEnabled="{Binding Path=IsServerActive}" DockPanel.Dock="Right">
+            <TextBlock DockPanel.Dock="Top" Text="Active Clients" TextAlignment="Center"/>
+            <ListBox Name="lbActiveClients" ItemsSource="{Binding Path=lstClients}" DisplayMemberPath="Username"/>
+        </DockPanel>
+        <Grid Name="gControl" DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Column="0" Grid.Row="0" Text="Socket Address:"/>
+            <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding Path=IpAddress, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}" IsEnabled="{Binding Path=IsServerStopped}"/>
+            <TextBox Grid.Column="2" Grid.Row="0" Text="{Binding Path=Port, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}" Width="70" IsEnabled="{Binding Path=IsServerStopped}"/>
+
+            <TextBlock Grid.Column="0" Grid.Row="1" Text="Username:"/>
+            <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Path=Username, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <Button Name="bSwitchServerState" Grid.Column="3" Grid.Row="0" Grid.RowSpan="2" Content="{Binding Path=IsServerActive,Converter={StaticResource BooleanToStartStopConverter}}" Click="bSwitchServerState_Click"/>
+        </Grid>
+        <DockPanel IsEnabled="{Binding Path=IsServerActive}">
+            <Grid DockPanel.Dock="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Column="0" Grid.Row="0" Text="Target Username:"/>
+                <TextBox Name="tbTargetUsername" Grid.Column="1" Grid.Row="0"/>
+
+                <TextBlock Grid.Column="0" Grid.Row="1" Text="Message:"/>
+                <TextBox Name="tbMessage" Grid.Column="1" Grid.Row="1"/>
+
+                <Button Name="bSend" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Content="Send" Click="bSend_Click"/>
+            </Grid>
+            <ListBox Name="lstChatHistory" ItemsSource="{Binding Path=lstChat}"/>
+        </DockPanel>
+    </DockPanel>
 </Window>
-

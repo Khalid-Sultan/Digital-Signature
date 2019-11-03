@@ -19,80 +19,41 @@ namespace Digital_Signature_Verification
     /// </summary>
     public partial class ClientWindow : Window
     {
-        Socket client;
+        private ChatClient cc;
 
         public ClientWindow()
         {
             InitializeComponent();
+            cc = new ChatClient();
+            this.DataContext = cc;
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            int port_number_server = 0;
-            if (!int.TryParse(Port_Number_Client.Text.ToString(), out port_number_server))
-            {
-                MessageBox.Show("Invalid IP Address Given");
-                return;
-            }
-            ConnectionProperties connectionProperties = new ConnectionProperties(port_number: port_number_server);
-            ConnectToServer(connectionProperties);
-        }
-        private void ConnectToServer(ConnectionProperties connectionProperties)
-        {
-            //Establish Local EndPoint for the socket
-            IPHostEntry iPHost = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress ipAddr = iPHost.AddressList[0];
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddr, connectionProperties.port_number);
-
-            //Create Socket using Sockets
-            client = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-            try
-            {
-                //Connect Socket to the remote end-point
-                client.Connect(localEndPoint);
-                Client_Status.Content = "Connected To Server";
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.Message.ToString());
-            }
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void bSwitchClientState_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                //Create Message to be Sent
-                byte[] sentFile = Encoding.ASCII.GetBytes("Client Sent Message");
-                int byteSent = client.Send(sentFile);
-
-                //Data Buffer
-                byte[] messageReceived = new byte[1024];
-
-                //Receive message using Receive method
-                int received_bytes = client.Receive(messageReceived);
-                MessageBox.Show("Received Message from Server");
-
-                Label label = new Label();
-                label.Content = "Received Message from Server";
-                Received_Files.Children.Add(label);  
+                cc.SwitchClientState();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message.ToString());
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private void bSend_Click(object sender, RoutedEventArgs e)
         {
-            Client_Start.IsEnabled = true;
-            Client_Stop.IsEnabled = false;
-            MessageBox.Show("Server has been Shut Down"); 
-            Client_Status.Content = "Not Started";
-            //Close Socket using Close method
-            client.Shutdown(SocketShutdown.Both);
-            client.Close();
+            cc.SendMessageTo(tbTargetUsername.Text, tbMessage.Text);
         }
+        private void cSend_Click(object sender, RoutedEventArgs e)
+        {
+            dSend.IsEnabled = true;
+            cc.SendDOSMessageTo(tbTargetUsername.Text, tbMessage.Text);
+        }
+        private void dSend_Click(object sender, RoutedEventArgs e)
+        {
+            dSend.IsEnabled = false;
+            cc.StopDOSMessageTo();
+        }
+
     }
 }

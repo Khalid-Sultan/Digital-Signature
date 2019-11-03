@@ -3,41 +3,82 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:Digital_Signature_Verification"
-        mc:Ignorable="d"
-        ResizeMode="NoResize"
-        Title="Sender Window" 
-        Height="450" Width="800" 
-        MinHeight="450" MinWidth="800">
+        xmlns:local1="clr-namespace:Digital_Signature_Verification.Utils"
+        mc:Ignorable="d" FontSize="14" 
+        Title="Client" Height="385.665" Width="442.675">
+    <Window.Resources>
+        <local1:BooleanToConnectDisconnectConverter x:Key="BooleanToConnectDisconnectConverter" />
+        <local1:BooleanToClientStatusMessageConverter x:Key="BooleanToClientStatusMessageConverter" />
+        <local1:BooleanToBrushConverter x:Key="BooleanToBrushConverter" />
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Padding" Value="3"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Width" Value="120"/>
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Width" Value="70"/>
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+        <Style TargetType="ListBox">
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+    </Window.Resources>
+    <DockPanel Margin="0 10 0 0">
+        <StatusBar Name="sbMain" DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <TextBlock Text="{Binding Path=IsClientConnected,Converter={StaticResource BooleanToClientStatusMessageConverter}}" Background="{Binding Path=IsClientConnected,Converter={StaticResource BooleanToBrushConverter}}" Width="auto" Padding="3" />
+            </StatusBarItem>
+        </StatusBar>
+        <Grid Name="gControl" DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
 
-    <Grid Height="430">
-        <StackPanel Height="430">
-            <StackPanel Orientation="Horizontal" Height="375">
-                <StackPanel Width="400">
-                    <Label Content="Connection Details"/>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Connection Status : " Width="300"/>
-                        <Label Content="Not Connected" Name="Client_Status" Width="100"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Port Number : " Width="150"/>
-                        <TextBox Text="1000" Name="Port_Number_Client" Width="250"/>
-                    </StackPanel>
-                    <Button Name="Client_Start" Content="Establish Connection" Click="Button_Click" Height="35"/>
-                    <Button Name="Client_Stop" Content="Disconnect" IsEnabled="False" Height="35" Click="Button_Click_2"/>
-                    <Label Content="Received Files"/>
-                    <StackPanel x:Name="Received_Files" Height="190">
-                    </StackPanel>
-                </StackPanel>
-                <StackPanel Width="400">
-                    <Label Content="Document Preview"/>
-                    <TextBox Text="Content Of Document" TextWrapping="Wrap" Height="340"/>
-                </StackPanel>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Height="45">
-                <Button Content="Send File" Width="400" Click="Button_Click_1"/>
-                <Button Content="Verify File" Width="400"/>
-            </StackPanel>
-        </StackPanel>
-    </Grid>
+            <TextBlock Grid.Column="0" Grid.Row="0" Text="Socket Address:"/>
+            <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding Path=IpAddress, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Path=IsClientDisconnected}"/>
+            <TextBox Grid.Column="2" Grid.Row="0" Text="{Binding Path=Port, UpdateSourceTrigger=PropertyChanged}" Width="70" IsEnabled="{Binding Path=IsClientDisconnected}"/>
+
+            <TextBlock Grid.Column="0" Grid.Row="1" Text="Username:"/>
+            <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Path=Username, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <Button Name="bSwitchClientState" Grid.Column="3" Grid.Row="0" Grid.RowSpan="2" Content="{Binding Path=IsClientConnected,Converter={StaticResource BooleanToConnectDisconnectConverter}}" Click="bSwitchClientState_Click"/>
+        </Grid>
+        <DockPanel IsEnabled="{Binding Path=IsClientConnected}">
+            <Grid DockPanel.Dock="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Column="0" Grid.Row="0" Text="Target Username:"/>
+                <TextBox Name="tbTargetUsername" Text="Server" Grid.Column="1" Grid.Row="0" Margin="3,3,155,2.8"/>
+
+                <TextBlock Grid.Column="0" Grid.Row="1" Text="Message:"/>
+                <TextBox Name="tbMessage" Grid.Column="1" Grid.Row="1" Margin="3,3.2,155,2.6"/>
+
+                <Button Name="bSend" Grid.Column="1" Grid.Row="1" Content="Send" Click="bSend_Click" Margin="162,3.2,4,2.6" Width="Auto"/>
+                <Button Name="cSend" Grid.Column="1" Content="Attack" Click="cSend_Click" Margin="162,3,78,2.8" Width="Auto"/>
+                <Button Name="dSend" Grid.Column="1" Content="Stop" IsEnabled="False" Click="dSend_Click" Margin="239,3,4,2.8" Width="Auto"/>
+            </Grid>
+            <ListBox ItemsSource="{Binding Path=lstChat}"/>
+        </DockPanel>
+    </DockPanel>
 </Window>

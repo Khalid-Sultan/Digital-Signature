@@ -19,89 +19,31 @@ namespace Digital_Signature_Verification
     /// </summary>
     public partial class ServerWindow : Window
     {
-        Socket listener;
+        ChatServer cs;
         public ServerWindow()
         {
             InitializeComponent();
+
+            lbActiveClients.SelectionChanged += (_s, _e) =>
+            {
+                if (lbActiveClients.SelectedValue == null)
+                    return;
+                if (lbActiveClients.SelectedValue is Client)
+                    tbTargetUsername.Text = (lbActiveClients.SelectedValue as Client).Username;
+            };
+
+
+            this.DataContext = cs = new ChatServer();
         }
 
-
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void bSwitchServerState_Click(object sender, RoutedEventArgs e)
         {
-            int port_number_server = 0;
-            if (!int.TryParse(Port_Number_Server.Text.ToString(), out port_number_server))
-            {
-                MessageBox.Show("Invalid IP Address Given");
-                return;
-            }
-            ConnectionProperties connectionProperties = new ConnectionProperties(port_number: port_number_server);
-            StartServer(connectionProperties);
+            cs.SwitchServerState();
         }
 
-        private void StartServer(ConnectionProperties connectionProperties)
+        private void bSend_Click(object sender, RoutedEventArgs e)
         {
-            //Establish Local EndPoint for the socket
-            IPHostEntry iPHost = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress ipAddr = iPHost.AddressList[0];
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddr, connectionProperties.port_number);
-
-            //Create TCP/IP Socket using Sockets
-            listener = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            try
-            {
-                //Using Binding method, associate the network address to the socket
-                listener.Bind(localEndPoint);
-
-                //Using Listening method, set the maximum list of clients to accept
-                listener.Listen(5);
-
-                Server_Start.IsEnabled = false;
-                Server_Stop.IsEnabled = true;
-
-                ListenServer();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message.ToString());
-            }
-        }
-        private async void ListenServer()
-        {
-            while (true)
-            {
-                Server_Status.Content = "Waiting For Connection";
-                Socket client = await listener.AcceptAsync();
-                Connected_Clients.Content = "Some clients are Connected";
-
-                byte[] bytes = new byte[1024];
-                string data = null;
-
-                while (true)
-                {
-                    int numByte = client.Receive(bytes);
-                    data += Encoding.ASCII.GetString(bytes, 0, numByte);
-                    if (data.IndexOf("<EOF>") > -1) break;
-                }
-                MessageBox.Show("File Received");
-                Label label = new Label();
-                label.Content = "Received Message from Client";
-                Received_Files.Children.Add(label);
-
-                byte[] message = Encoding.ASCII.GetBytes("File Received By Server");
-
-                //Send an acknowledgment message back to the client
-                client.Send(message);
-            }
-        }
-
-        private void Server_Stop_Click(object sender, RoutedEventArgs e)
-        {
-            Server_Start.IsEnabled = true;
-            Server_Stop.IsEnabled = false;
-            MessageBox.Show("Server has been Shut Down");
-            Connected_Clients.Content = "No clients are Connected";
-            Server_Status.Content = "Not Started";
-            listener.Close();
+            cs.SendMessage(tbTargetUsername.Text, tbMessage.Text);
         }
     }
 }
