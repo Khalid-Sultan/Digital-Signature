@@ -137,7 +137,7 @@ namespace Digital_Signature_Verification
             if (!this.IsClientConnected) return;
             if (this._socket != null && this._thread != null)
             {
-                //this._thread.Abort(); MainThread = null;
+                //this._thread.Abort(); //MainThread = null;
                 this._socket.Shutdown(SocketShutdown.Both);
                 //this._socket.Disconnect(false);
                 this._socket.Dispose();
@@ -176,12 +176,12 @@ namespace Digital_Signature_Verification
                 }
                 catch (Exception ex)
                 {
-                    //this._dispatcher.Invoke(new Action(() =>
-                    //{
-                        MessageBox.Show($"Client : {ex.Message.ToString()}");
-                    //    this.Disconnect();
-                    //}));
-                    //return;
+                    this._dispatcher.Invoke(new Action(() =>
+                    {
+                        //MessageBox.Show($"Client : {ex.Message.ToString()}");
+                        this.Disconnect();
+                    }));
+                    return;
                 }
             }
 

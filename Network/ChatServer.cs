@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -182,7 +183,8 @@ namespace Digital_Signature_Verification
                 if (_socket == null) return;
                 Client client = new Client();
                 client.ID = this._clientIdCounter;
-                client.Username = "NewUser"; // نام کاربری موقت
+                client.Username = "NewUser";
+
                 try
                 {
                     client.Socket = _socket.Accept();

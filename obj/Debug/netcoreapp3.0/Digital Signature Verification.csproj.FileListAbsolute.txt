@@ -19,3 +19,4 @@ A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\C
 A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\ServerWindow.g.cs
 A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\ServerWindow.baml
 A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\GeneratedInternalTypeHelper.g.cs
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\Digital Signature Verification.csprojAssemblyReference.cache

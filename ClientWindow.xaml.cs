@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,7 +21,6 @@ namespace Digital_Signature_Verification
     public partial class ClientWindow : Window
     {
         private ChatClient cc;
-
         public ClientWindow()
         {
             InitializeComponent();
@@ -44,16 +44,5 @@ namespace Digital_Signature_Verification
         {
             cc.SendMessageTo(tbTargetUsername.Text, tbMessage.Text);
         }
-        private void cSend_Click(object sender, RoutedEventArgs e)
-        {
-            dSend.IsEnabled = true;
-            cc.SendDOSMessageTo(tbTargetUsername.Text, tbMessage.Text);
-        }
-        private void dSend_Click(object sender, RoutedEventArgs e)
-        {
-            dSend.IsEnabled = false;
-            cc.StopDOSMessageTo();
-        }
-
     }
 }

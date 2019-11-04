@@ -69,14 +69,12 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Target Username:"/>
-                <TextBox Name="tbTargetUsername" Text="Server" Grid.Column="1" Grid.Row="0" Margin="3,3,155,2.8"/>
+                <TextBox Name="tbTargetUsername" Text="Server" Grid.Column="1" Grid.Row="0" Margin="3,3,4,2"/>
 
                 <TextBlock Grid.Column="0" Grid.Row="1" Text="Message:"/>
                 <TextBox Name="tbMessage" Grid.Column="1" Grid.Row="1" Margin="3,3.2,155,2.6"/>
 
                 <Button Name="bSend" Grid.Column="1" Grid.Row="1" Content="Send" Click="bSend_Click" Margin="162,3.2,4,2.6" Width="Auto"/>
-                <Button Name="cSend" Grid.Column="1" Content="Attack" Click="cSend_Click" Margin="162,3,78,2.8" Width="Auto"/>
-                <Button Name="dSend" Grid.Column="1" Content="Stop" IsEnabled="False" Click="dSend_Click" Margin="239,3,4,2.8" Width="Auto"/>
             </Grid>
             <ListBox ItemsSource="{Binding Path=lstChat}"/>
         </DockPanel>
