@@ -44,7 +44,9 @@
         </StatusBar>
         <DockPanel IsEnabled="{Binding Path=IsServerActive}" DockPanel.Dock="Right">
             <TextBlock DockPanel.Dock="Top" Text="Active Clients" TextAlignment="Center"/>
-            <ListBox Name="lbActiveClients" ItemsSource="{Binding Path=lstClients}" DisplayMemberPath="Username"/>
+            <ListBox DockPanel.Dock="Top" Name="lbActiveClients" ItemsSource="{Binding Path=lstClients}" DisplayMemberPath="Username" Height="184"/>
+            <TextBlock Name="KeyStatus" DockPanel.Dock="Bottom" Text="No Keys Exchanged Yet" TextWrapping="Wrap" TextAlignment="Center" Height="60"/>
+            <TextBlock Text="Key Status" TextAlignment="Center" DockPanel.Dock="Bottom"/>
         </DockPanel>
         <Grid Name="gControl" DockPanel.Dock="Top">
             <Grid.ColumnDefinitions>
@@ -79,14 +81,17 @@
                     <RowDefinition/>
                 </Grid.RowDefinitions>
 
+
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Target Username:"/>
-                <TextBox Name="tbTargetUsername" Grid.Column="1" Grid.Row="0"/>
+                <TextBox IsReadOnly="True" Name="tbTargetUsername" Text="Server" Grid.Column="1" Grid.Row="0" Margin="3,3,118,2"/>
+                <Button Name="bExchange" Grid.Column="1" Grid.Row="0" Content="Exchange Keys" Click="bExchange_Click" Margin="162,3.2,4,2.6" Width="Auto"/>
 
                 <TextBlock Grid.Column="0" Grid.Row="1" Text="Message:"/>
-                <TextBox Name="tbMessage" Grid.Column="1" Grid.Row="1"/>
+                <Button Name="tbMessage" Grid.Column="1" Grid.Row="1"  Margin="3,3,118,2" Width="Auto" Click="bBrowse_Click" Content="Browse"/>
 
-                <Button Name="bSend" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Content="Send" Click="bSend_Click"/>
+                <Button Name="bSend" Grid.Column="1" Grid.Row="1" Content="Send" Click="bSend_Click" Margin="162,3.2,4,2.6" Width="Auto" IsEnabled="False"/>
             </Grid>
+
             <ListBox Name="lstChatHistory" ItemsSource="{Binding Path=lstChat}"/>
         </DockPanel>
     </DockPanel>

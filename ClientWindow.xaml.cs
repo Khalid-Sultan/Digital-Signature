@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -21,6 +22,8 @@ namespace Digital_Signature_Verification
     public partial class ClientWindow : Window
     {
         private ChatClient cc;
+        private string filepath = null;
+
         public ClientWindow()
         {
             InitializeComponent();
@@ -42,7 +45,30 @@ namespace Digital_Signature_Verification
 
         private void bSend_Click(object sender, RoutedEventArgs e)
         {
-            cc.SendMessageTo(tbTargetUsername.Text, tbMessage.Text);
+            cc.SendMessageTo(tbTargetUsername.Text, filepath);
+        }
+
+        private void bExchange_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                cc.ExchangeKeys(tbTargetUsername.Text);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void bBrowse_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFile = new OpenFileDialog();
+            openFile.DefaultExt = ".txt";
+            Nullable<bool> openedFile = openFile.ShowDialog();
+            if (openedFile.HasValue){
+                filepath = openFile.FileName;
+                tbMessage.Content = "Browse: Selected " + openFile.SafeFileName;
+            }
         }
     }
 }

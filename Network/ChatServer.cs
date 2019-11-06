@@ -148,6 +148,16 @@ namespace Digital_Signature_Verification
         }
         public void SendMessage(string toUsername, string messageContent)
             => this.SendMessage(this.lstClients[0], toUsername, messageContent);
+
+        public void ExchangeKeys(string targetUsername)
+        {
+            KeyTracker keyTracker = new KeyTracker
+            {
+                sender_id = this.lstClients[0].Username,
+                receiver_id = targetUsername
+            };
+            KeysManifestController.KeysManifest.Add(keyTracker);
+        }
         private void SendMessage(Client from, string toUsername, string messageContent)
         {
             string logMessage = string.Format("**log** From {0} | To {1} | Message {2}", from.Username, toUsername, messageContent);
@@ -229,6 +239,16 @@ namespace Digital_Signature_Verification
                         {
                             string newUsername = strMessage.Replace("/setname ", "").Trim('\0');
                             c.Username = newUsername;
+                        }
+                        else if(strMessage.Substring(0,5) == "/keys")
+                        {
+                            string receiver = strMessage.Replace("/keys ", "").Trim('\0').Replace("\n","");
+                            KeyTracker keyTracker = new KeyTracker
+                            {
+                                sender_id = c.Username,
+                                receiver_id = receiver
+                            };
+                            KeysManifestController.KeysManifest.Add(keyTracker);
                         }
                         else if (strMessage.Substring(0, 6) == "/msgto")
                         {

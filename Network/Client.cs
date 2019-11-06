@@ -11,8 +11,6 @@ namespace Digital_Signature_Verification
         private int _id;
         private string _username;
 
-        private string _private_key;
-        private string _public_key;
 
         public int ID
         {
@@ -38,19 +36,7 @@ namespace Digital_Signature_Verification
                 this.NotifyPropertyChanged("Username");
             }
         }
-
-        public string private_key
-        {
-            get { return this._private_key; }
-            set { this._private_key = value; }
-        }
-        public string public_key
-        {
-            get { return this._public_key; }
-            set { this.public_key = value; }
-        }
-
-
+         
         public Socket Socket { get; set; }
         public Thread Thread { get; set; }
 

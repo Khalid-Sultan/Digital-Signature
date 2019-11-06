@@ -7,6 +7,7 @@ namespace Digital_Signature_Verification
 {
     class KeyTracker
     {
+        public string sender_id { get; set; }
         public string receiver_id { get; set; }
         public RSAParameters public_key { get; set; }
         private RSAParameters private_key { get; set; }

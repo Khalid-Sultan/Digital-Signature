@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Microsoft.Win32;
 
 namespace Digital_Signature_Verification
 {
@@ -20,6 +21,7 @@ namespace Digital_Signature_Verification
     public partial class ServerWindow : Window
     {
         ChatServer cs;
+        private string filepath = null;
         public ServerWindow()
         {
             InitializeComponent();
@@ -29,7 +31,26 @@ namespace Digital_Signature_Verification
                 if (lbActiveClients.SelectedValue == null)
                     return;
                 if (lbActiveClients.SelectedValue is Client)
+                {
                     tbTargetUsername.Text = (lbActiveClients.SelectedValue as Client).Username;
+                    foreach(KeyTracker keyTracker in KeysManifestController.KeysManifest)
+                    {
+                        if ((keyTracker.receiver_id == tbTargetUsername.Text ||
+                            keyTracker.sender_id == tbTargetUsername.Text) &&
+                            (keyTracker.receiver_id == cs.Username ||
+                            keyTracker.receiver_id == cs.Username)
+                        )
+                        {
+                            KeyStatus.Text = $"Public Key Available\nPrivate Key Hidden :)";
+                            bExchange.IsEnabled = false;
+                            bSend.IsEnabled = true;
+                            break;
+                        }
+                    }
+                    bExchange.IsEnabled = true;
+                    bSend.IsEnabled = false;
+                }
+
             };
 
 
@@ -43,7 +64,31 @@ namespace Digital_Signature_Verification
 
         private void bSend_Click(object sender, RoutedEventArgs e)
         {
-            cs.SendMessage(tbTargetUsername.Text, tbMessage.Text);
+            cs.SendMessage(tbTargetUsername.Text, filepath);
+        }
+
+        private void bExchange_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                cs.ExchangeKeys(tbTargetUsername.Text);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void bBrowse_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFile = new OpenFileDialog();
+            openFile.DefaultExt = ".txt";
+            Nullable<bool> openedFile = openFile.ShowDialog();
+            if (openedFile.HasValue)
+            {
+                filepath = openFile.FileName;
+                tbMessage.Content = "Browse: Selected " + openFile.SafeFileName;
+            }
         }
     }
 }

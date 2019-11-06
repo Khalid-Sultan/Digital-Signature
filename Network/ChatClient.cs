@@ -210,39 +210,17 @@ namespace Digital_Signature_Verification
             {
                 MessageBox.Show($"Client : {ex.Message.ToString()}");
             }
-
         }
-        private bool _stopAttack;
-        public bool Attack
+        public void ExchangeKeys(string targetUsername)
         {
-            get{ return _stopAttack; }
-            set{
-                this._stopAttack = value;
-            }
-        }
-        public void StopDOSMessageTo()
-        {
-            this._stopAttack = true;
-        }
-        public void SendDOSMessageTo(string targetUsername, string message)
-        {
-            string cmd = string.Format("/msgto {0}:{1} \n", targetUsername, message);
+            string cmd = string.Format("/keys {0}\n", targetUsername);
             try
             {
-                DateTime dateTime = DateTime.Now;
-                for (; ; )
-                {
-                    if (DateTime.Now < dateTime.AddSeconds(30))
-                    {
-                        if (this._stopAttack == true) break;
-                        this._socket.Send(Encoding.Unicode.GetBytes(cmd), SocketFlags.None);
-                    }
-                    else break;
-                }
+                this._socket.Send(Encoding.Unicode.GetBytes(cmd), SocketFlags.None);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                MessageBox.Show($"Client 2 : {ex.Message.ToString()}");
+                MessageBox.Show($"Client : {ex.Message.ToString()}");
             }
         }
     }

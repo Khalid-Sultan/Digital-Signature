@@ -21,10 +21,10 @@ namespace Digital_Signature_Verification
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {
+    { 
         public MainWindow()
         {
-            InitializeComponent();
+            InitializeComponent(); 
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
