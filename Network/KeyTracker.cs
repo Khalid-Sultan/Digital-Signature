@@ -41,18 +41,18 @@ namespace Digital_Signature_Verification
             var key = (RSAParameters)xs.Deserialize(sr);
             return key;
         }
-        public byte[] EncryptBytes(RSAParameters public_key, byte[] bytes)
+        public byte[] EncryptBytes(byte[] bytes)
         {
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
-            rsa.ImportParameters(public_key);
+            rsa.ImportParameters(this.public_key);
             var encrypted_bytes = rsa.Encrypt(bytes, false);
             return encrypted_bytes;
         }
 
-        public byte[] DecryptBytes(RSAParameters private_key, byte[] bytes)
+        public byte[] DecryptBytes(byte[] bytes)
         {
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
-            rsa.ImportParameters(private_key);
+            rsa.ImportParameters(this.private_key);
             var decrypted_bytes = rsa.Decrypt(bytes, false);
             return decrypted_bytes;
         }

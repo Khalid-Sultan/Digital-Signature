@@ -73,11 +73,12 @@
                 <Button Name="bExchange" Grid.Column="1" Grid.Row="0" Content="Exchange Keys" Click="bExchange_Click" Margin="162,3.2,4,2.6" Width="Auto"/>
 
                 <TextBlock Grid.Column="0" Grid.Row="1" Text="Message:"/>
-                <Button Name="tbMessage" Grid.Column="1" Grid.Row="1"  Margin="3,3,160,2" Width="Auto" Click="bBrowse_Click" Content="Browse"/>
+                <Button Name="tbMessage" Grid.Column="1" Grid.Row="1"  Margin="3,3,160,2" Width="Auto" Click="bBrowse_Click" Content="Browse" IsEnabled="False"/>
 
                 <Button Name="bSend" Grid.Column="1" Grid.Row="1" Content="Send" Click="bSend_Click" Margin="162,3.2,4,2.6" Width="Auto" IsEnabled="False"/>
             </Grid>
             <ListBox ItemsSource="{Binding Path=lstChat}"/>
         </DockPanel>
     </DockPanel>
+    
 </Window>

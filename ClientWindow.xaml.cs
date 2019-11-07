@@ -53,10 +53,14 @@ namespace Digital_Signature_Verification
             try
             {
                 cc.ExchangeKeys(tbTargetUsername.Text);
+                tbMessage.IsEnabled = true;
+                bSend.IsEnabled = true;
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                tbMessage.IsEnabled = false;
+                bSend.IsEnabled = false;
             }
         }
 

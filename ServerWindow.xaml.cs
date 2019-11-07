@@ -38,15 +38,16 @@ namespace Digital_Signature_Verification
                         if ((keyTracker.receiver_id == tbTargetUsername.Text ||
                             keyTracker.sender_id == tbTargetUsername.Text) &&
                             (keyTracker.receiver_id == cs.Username ||
-                            keyTracker.receiver_id == cs.Username)
+                            keyTracker.sender_id     == cs.Username)
                         )
                         {
-                            KeyStatus.Text = $"Public Key Available\nPrivate Key Hidden :)";
+                            KeyStatus.Text = $"Keys Exchanged :)";
                             bExchange.IsEnabled = false;
                             bSend.IsEnabled = true;
                             break;
                         }
                     }
+                    KeyStatus.Text = $"No Keys Exchanged Yet :(";
                     bExchange.IsEnabled = true;
                     bSend.IsEnabled = false;
                 }

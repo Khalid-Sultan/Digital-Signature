@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -201,14 +202,35 @@ namespace Digital_Signature_Verification
         }
         public void SendMessageTo(string targetUsername, string message)
         {
-            string cmd = string.Format("/msgto {0}:{1} \n", targetUsername, message);
-            try
+            bool exists = File.Exists(message);
+            if (exists == false)
             {
-                this._socket.Send(Encoding.Unicode.GetBytes(cmd), SocketFlags.None);
+                MessageBox.Show("File Doesn't exist to be sent");
+                return;
             }
-            catch(Exception ex)
+            
+            string fileContents = File.ReadAllText(message);
+            int fileHash = fileContents.GetHashCode();
+            foreach (KeyTracker keyTracker in KeysManifestController.KeysManifest)
             {
-                MessageBox.Show($"Client : {ex.Message.ToString()}");
+                if ((keyTracker.receiver_id == targetUsername||
+                    keyTracker.sender_id == targetUsername) &&
+                    (keyTracker.receiver_id == this.Username ||
+                    keyTracker.sender_id == this.Username)
+                )
+                {
+                    string encryptedFileContents = keyTracker.ConvertBytesToString(keyTracker.EncryptBytes(Encoding.Unicode.GetBytes(fileContents)));
+                    string cmd = $"/msgto {targetUsername}:{fileHash}|{encryptedFileContents}";
+                    try
+                    {
+                        this._socket.Send(Encoding.Unicode.GetBytes(cmd), SocketFlags.None);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Client : {ex.Message.ToString()}");
+                    }
+                    return;
+                }
             }
         }
         public void ExchangeKeys(string targetUsername)
