@@ -21,11 +21,11 @@ namespace Digital_Signature_Verification
 
         public string ConvertBytesToString(byte[] bytes)
         {
-            return Convert.ToBase64String(bytes);
+            return Convert.ToString(bytes);
         }
         public byte[] ConvertStringToBytes(string text)
         {
-            return Convert.FromBase64String(text);
+            return Encoding.ASCII.GetBytes(text);
         }
         public string ConvertKeyToString(RSAParameters key)
         {

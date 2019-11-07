@@ -219,7 +219,7 @@ namespace Digital_Signature_Verification
                     keyTracker.sender_id == this.Username)
                 )
                 {
-                    string encryptedFileContents = keyTracker.ConvertBytesToString(keyTracker.EncryptBytes(Encoding.Unicode.GetBytes(fileContents)));
+                    string encryptedFileContents = keyTracker.ConvertBytesToString(keyTracker.EncryptBytes(keyTracker.ConvertStringToBytes(fileContents)));
                     string cmd = $"/msgto {targetUsername}:{fileHash}|{encryptedFileContents}";
                     try
                     {

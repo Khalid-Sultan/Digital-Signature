@@ -172,12 +172,11 @@ namespace Digital_Signature_Verification
             };
             KeysManifestController.KeysManifest.Add(keyTracker);
         }
-        private void SendMessage(Client from, string toUsername, string encryptedMessage)
+        private void SendMessage(Client from, string toUsername, string message)
         {
+            int hash = Convert.ToInt32(message.Substring(message.IndexOf('|')));
+            string encryptedMessage = message.Substring(message.IndexOf('|') + 1);
 
-        }
-        private void SendMessage(Client from, string toUsername, string encryptedMessage, int hash)
-        {
             foreach (KeyTracker keyTracker in KeysManifestController.KeysManifest)
             {
                 if ((keyTracker.receiver_id == toUsername ||
@@ -304,11 +303,10 @@ namespace Digital_Signature_Verification
                         {
                             string data = strMessage.Replace("/msgto ", "").Trim('\0');
                             string targetUsername = data.Substring(0, data.IndexOf(':'));
-                            int hash = Convert.ToInt32(data.Substring(data.IndexOf(':') + 1, data.IndexOf('|')));
-                            string encryptedMessage = data.Substring(data.IndexOf('|') + 1);
+                            string encryptedMessage = data.Substring(data.IndexOf(':') + 1);
                             this._dispatcher.Invoke(new Action(() =>
                             {
-                                SendMessage(c, targetUsername, encryptedMessage, hash);
+                                SendMessage(c, targetUsername, encryptedMessage);
                             }), null);
                         }
 

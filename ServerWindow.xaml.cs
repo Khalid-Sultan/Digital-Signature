@@ -38,7 +38,7 @@ namespace Digital_Signature_Verification
                         if ((keyTracker.receiver_id == tbTargetUsername.Text ||
                             keyTracker.sender_id == tbTargetUsername.Text) &&
                             (keyTracker.receiver_id == cs.Username ||
-                            keyTracker.sender_id     == cs.Username)
+                            keyTracker.sender_id == cs.Username)
                         )
                         {
                             KeyStatus.Text = $"Keys Exchanged :)";
