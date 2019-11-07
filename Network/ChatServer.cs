@@ -151,6 +151,20 @@ namespace Digital_Signature_Verification
 
         public void ExchangeKeys(string targetUsername)
         {
+            foreach (KeyTracker key in KeysManifestController.KeysManifest)
+            {
+
+                if ((key.receiver_id == targetUsername ||
+                    key.sender_id == targetUsername) &&
+                    (key.receiver_id == this.lstClients[0].Username ||
+                    key.sender_id == this.lstClients[0].Username)
+                )
+                {
+                    MessageBox.Show("Keys are already exchanged.");
+                    return;
+                }
+
+            }
             KeyTracker keyTracker = new KeyTracker
             {
                 sender_id = this.lstClients[0].Username,
@@ -275,6 +289,7 @@ namespace Digital_Signature_Verification
                                     key.sender_id == receiver)
                                 )
                                 {
+                                    MessageBox.Show("Keys are already exchanged.");
                                     return;
                                 }
                             }

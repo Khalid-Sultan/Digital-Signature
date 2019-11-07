@@ -44,7 +44,7 @@ namespace Digital_Signature_Verification
                             KeyStatus.Text = $"Keys Exchanged :)";
                             bExchange.IsEnabled = false;
                             bSend.IsEnabled = true;
-                            break;
+                            return;
                         }
                     }
                     KeyStatus.Text = $"No Keys Exchanged Yet :(";
