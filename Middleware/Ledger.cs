@@ -4,7 +4,8 @@ using System.Text;
 
 namespace Digital_Signature_Verification
 {
-    class Ledger
+    public static class Ledger
     {
+        internal static List<RSA> KeysManifest = new List<RSA>();
     }
 }

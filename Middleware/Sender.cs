@@ -163,7 +163,6 @@ namespace Digital_Signature_Verification
                     if (x > 0) {
                         string fileName = $"ENCRYPTED - {new Random(Seed: 151).Next(500000)}.txt";
                         File.WriteAllBytes(fileName, inf);
-
                         this._dispatcher.Invoke(new Action(() =>
                         {
                             System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
@@ -186,22 +185,25 @@ namespace Digital_Signature_Verification
         }
         public void SendMessageTo(string targetUsername, string path)
         {
-            FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read);
-            BinaryReader reader = new BinaryReader(file);
-            byte[] data = reader.ReadBytes((int)file.Length);
-            reader.Close();
-            file.Close();
-
-            foreach (DsaTracker key in KeysManifestController.KeysManifest)
+            string text = File.ReadAllText(path);
+            foreach (RSA key in Ledger.KeysManifest)
             {
-                if ((key.receiver_id == targetUsername ||
-                    key.sender_id == targetUsername) &&
-                    (key.receiver_id == this.Username ||
-                    key.sender_id == this.Username)
+                if ((key.Receiver_Username == targetUsername ||
+                    key.Sender_Username == targetUsername) &&
+                    (key.Receiver_Username == this.Username ||
+                    key.Sender_Username == this.Username)
                 )
                 {
-                    byte[] signedData = key.SignData(data);
-                    string cmd = $"/msgto {targetUsername}:{key.ConvertBytesToString(data)}:{key.ConvertBytesToString(signedData)}";
+                    byte[] encryptedBytes = key.EncryptText(text);
+                    Message message = new Message(encryptedBytes, Username, targetUsername, text.GetHashCode());
+                    string fileName = $"ENCRYPTED-{new Random(151).Next(50000).ToString()}.txt";
+                    Stream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Write);
+                    System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                    formatter.Serialize(stream, message);
+                    stream.Close();
+
+                    byte[] signedData = File.ReadAllBytes(fileName);
+                    string cmd = $"/msgto {targetUsername}:{Convert.ToBase64String(signedData)}";
                     try
                     {
                         this._socket.Send(Encoding.Unicode.GetBytes(cmd), SocketFlags.None);

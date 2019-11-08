@@ -4,16 +4,16 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Digital_Signature_Verification.Models
+namespace Digital_Signature_Verification
 {
-    class RSA
+    public class RSA
     {
         public string Sender_Username { get; set; }
         public string Receiver_Username { get; set; }
         public string Public_Key { get; set; }
         private string Private_Key { get; set; }
 
-        RSA(string Sender_Username, string Receiver_Username)
+        public RSA(string Sender_Username, string Receiver_Username)
         {
             this.Sender_Username = Sender_Username;
             this.Receiver_Username = Receiver_Username;
@@ -22,7 +22,7 @@ namespace Digital_Signature_Verification.Models
             this.Private_Key = rsa.ToXmlString(true);
         }
 
-        string EncryptText(string text)
+        public byte[] EncryptText(string text)
         {
             UnicodeEncoding byteConverter = new UnicodeEncoding(); 
             byte[] dataToEncrypt = byteConverter.GetBytes(text);
@@ -32,12 +32,10 @@ namespace Digital_Signature_Verification.Models
                 rsa.FromXmlString(Public_Key);
                 encryptedData = rsa.Encrypt(dataToEncrypt, false);
             }
-            string fileName = $"ENCRYPTED - {new Random(Seed:151).Next(500000)}.txt";
-            File.WriteAllBytes(fileName, encryptedData);
-            return fileName;
+            return encryptedData;
         }
 
-        string DecryptData(string filename)
+        public string DecryptData(string filename)
         {
             byte[] dataToDecrypt = File.ReadAllBytes(filename);
             byte[] decryptedData;
@@ -47,8 +45,8 @@ namespace Digital_Signature_Verification.Models
                 decryptedData = rsa.Decrypt(dataToDecrypt, false);
             }
             UnicodeEncoding byteConverter = new UnicodeEncoding();
-            string fileName = $"DECRYPTED - {new Random(Seed: 151).Next(500000)}.txt";
-            return byteConverter.GetString(decryptedData);
+            string decryptedFileName = $"DECRYPTED - {new Random(Seed: 151).Next(500000)}.txt";
+            return decryptedFileName;
         }
     }
 }
