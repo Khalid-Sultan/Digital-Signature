@@ -33,12 +33,12 @@ namespace Digital_Signature_Verification
                 if (lbActiveClients.SelectedValue is Client)
                 {
                     tbTargetUsername.Text = (lbActiveClients.SelectedValue as Client).Username;
-                    foreach(KeyTracker keyTracker in KeysManifestController.KeysManifest)
+                    foreach(DsaTracker key in KeysManifestController.KeysManifest)
                     {
-                        if ((keyTracker.receiver_id == tbTargetUsername.Text ||
-                            keyTracker.sender_id == tbTargetUsername.Text) &&
-                            (keyTracker.receiver_id == cs.Username ||
-                            keyTracker.sender_id == cs.Username)
+                        if ((key.receiver_id == tbTargetUsername.Text ||
+                            key.sender_id == tbTargetUsername.Text) &&
+                            (key.receiver_id == cs.Username ||
+                            key.sender_id == cs.Username)
                         )
                         {
                             KeyStatus.Text = $"Keys Exchanged :)";

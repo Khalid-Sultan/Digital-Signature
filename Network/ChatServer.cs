@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -151,7 +152,7 @@ namespace Digital_Signature_Verification
 
         public void ExchangeKeys(string targetUsername)
         {
-            foreach (KeyTracker key in KeysManifestController.KeysManifest)
+            foreach (DsaTracker key in KeysManifestController.KeysManifest)
             {
 
                 if ((key.receiver_id == targetUsername ||
@@ -165,62 +166,65 @@ namespace Digital_Signature_Verification
                 }
 
             }
-            KeyTracker keyTracker = new KeyTracker
+            DsaTracker dsaTracker = new DsaTracker
             {
                 sender_id = this.lstClients[0].Username,
                 receiver_id = targetUsername
             };
-            KeysManifestController.KeysManifest.Add(keyTracker);
+            KeysManifestController.KeysManifest.Add(dsaTracker);
         }
-        private void SendMessage(Client from, string toUsername, string message)
+        private void SendMessage(Client from, string toUsername, string receivedMessage)
         {
-            int hash = Convert.ToInt32(message.Substring(message.IndexOf('|')));
-            string encryptedMessage = message.Substring(message.IndexOf('|') + 1);
+            string extractedData = receivedMessage.Substring(0, receivedMessage.IndexOf(':'));
+            string signedData = receivedMessage.Substring(receivedMessage.IndexOf(':') + 1);
 
-            foreach (KeyTracker keyTracker in KeysManifestController.KeysManifest)
+            foreach (DsaTracker key in KeysManifestController.KeysManifest)
             {
-                if ((keyTracker.receiver_id == toUsername ||
-                    keyTracker.sender_id == toUsername) &&
-                    (keyTracker.receiver_id == from.Username ||
-                    keyTracker.sender_id == from.Username)
+                if ((key.receiver_id == toUsername ||
+                    key.sender_id == toUsername) &&
+                    (key.receiver_id == from.Username ||
+                    key.sender_id == from.Username)
 )
                 {
-                    byte[] decryptedBytes = keyTracker.DecryptBytes(keyTracker.ConvertStringToBytes(encryptedMessage));
-                    string actualMessage = keyTracker.ConvertBytesToString(decryptedBytes);
-                    if (actualMessage.GetHashCode() == hash)
+                    byte[] signature = key.ConvertStringToBytes(signedData); 
+                    byte[] data = key.ConvertStringToBytes(extractedData);
+
+                    bool verify = key.VerifyData(data, signature);
+                    string logMessage;
+                    if (verify)
                     {
-                        MessageBox.Show("VERIFIED MESSAGE RECIEVED");
+                        logMessage = string.Format("**log** From {0} | To {1} | Verified Message", from.Username, toUsername);
                     }
                     else
                     {
-                        MessageBox.Show("I REALLY DONT KNOW");
+                        logMessage = string.Format("**log** From {0} | To {1} | Un-Verified Message", from.Username, toUsername);
                     }
+                    this.lstChat.Add(logMessage);
+                    string message = from.Username + ": " + extractedData;
+                    bool isSent = false;
+                    // if target is server
+                    if (toUsername == this.Username)
+                    {
+                        this.lstChat.Add(message);
+                        isSent = true;
+                    }
+                    // if target username is registered
+                    foreach (Client c in lstClients)
+                    {
+                        if (c.Username == toUsername)
+                        {
+                            c.SendMessage(message);
+                            isSent = true;
+                        }
+                    }
+                    // if target username isn't registered
+                    if (!isSent)
+                    {
+                        from.SendMessage("**Server**: Error! Username not found, unable to deliver your message"); // send an error to sender
+                    }
+
                 }
             }
-            //    string logMessage = string.Format("**log** From {0} | To {1} | Message {2}", from.Username, toUsername, messageContent);
-            //this.lstChat.Add(logMessage);
-            //string message = from.Username + ": " + messageContent;
-            //bool isSent = false;
-            //// if target is server
-            //if (toUsername == this.Username)
-            //{
-            //    this.lstChat.Add(message);
-            //    isSent = true;
-            //}
-            //// if target username is registered
-            //foreach (Client c in lstClients)
-            //{
-            //    if (c.Username == toUsername)
-            //    {
-            //        c.SendMessage(message);
-            //        isSent = true;
-            //    }
-            //}
-            //// if target username isn't registered
-            //if (!isSent)
-            //{
-            //    from.SendMessage("**Server**: Error! Username not found, unable to deliver your message"); // send an error to sender
-            //}
         }
 
         void WaitForConnections()
@@ -280,7 +284,7 @@ namespace Digital_Signature_Verification
                         else if(strMessage.Substring(0,5) == "/keys")
                         {
                             string receiver = strMessage.Replace("/keys ", "").Trim('\0').Replace("\n","");
-                            foreach(KeyTracker key in KeysManifestController.KeysManifest)
+                            foreach(DsaTracker key in KeysManifestController.KeysManifest)
                             {
                                 if ((key.receiver_id == c.Username ||
                                     key.sender_id == c.Username) &&
@@ -292,12 +296,12 @@ namespace Digital_Signature_Verification
                                     return;
                                 }
                             }
-                            KeyTracker keyTracker = new KeyTracker
+                            DsaTracker dsaTracker = new DsaTracker
                             {
                                 sender_id = c.Username,
                                 receiver_id = receiver
                             };
-                            KeysManifestController.KeysManifest.Add(keyTracker);
+                            KeysManifestController.KeysManifest.Add(dsaTracker);
                         }
                         else if (strMessage.Substring(0, 6) == "/msgto")
                         {

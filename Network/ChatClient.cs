@@ -200,27 +200,24 @@ namespace Digital_Signature_Verification
                 MessageBox.Show($"Client 3 : {ex.Message.ToString()}");
             }
         }
-        public void SendMessageTo(string targetUsername, string message)
+        public void SendMessageTo(string targetUsername, string path)
         {
-            bool exists = File.Exists(message);
-            if (exists == false)
+            FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read);
+            BinaryReader reader = new BinaryReader(file);
+            byte[] data = reader.ReadBytes((int)file.Length);
+            reader.Close();
+            file.Close();
+
+            foreach (DsaTracker key in KeysManifestController.KeysManifest)
             {
-                MessageBox.Show("File Doesn't exist to be sent");
-                return;
-            }
-            
-            string fileContents = File.ReadAllText(message);
-            int fileHash = fileContents.GetHashCode();
-            foreach (KeyTracker keyTracker in KeysManifestController.KeysManifest)
-            {
-                if ((keyTracker.receiver_id == targetUsername||
-                    keyTracker.sender_id == targetUsername) &&
-                    (keyTracker.receiver_id == this.Username ||
-                    keyTracker.sender_id == this.Username)
+                if ((key.receiver_id == targetUsername||
+                    key.sender_id == targetUsername) &&
+                    (key.receiver_id == this.Username ||
+                    key.sender_id == this.Username)
                 )
                 {
-                    string encryptedFileContents = keyTracker.ConvertBytesToString(keyTracker.EncryptBytes(keyTracker.ConvertStringToBytes(fileContents)));
-                    string cmd = $"/msgto {targetUsername}:{fileHash}|{encryptedFileContents}";
+                    byte[] signedData = key.SignData(data);
+                    string cmd = $"/msgto {targetUsername}:{key.ConvertBytesToString(data)}:{key.ConvertBytesToString(signedData)}";
                     try
                     {
                         this._socket.Send(Encoding.Unicode.GetBytes(cmd), SocketFlags.None);

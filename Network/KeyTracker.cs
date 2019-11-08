@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -14,7 +15,7 @@ namespace Digital_Signature_Verification
 
         public KeyTracker()
         {
-            var csp = new RSACryptoServiceProvider(2048);
+            var csp = new RSACryptoServiceProvider(8192);
             this.public_key = csp.ExportParameters(true);
             this.private_key = csp.ExportParameters(false);
         }
@@ -56,5 +57,6 @@ namespace Digital_Signature_Verification
             var decrypted_bytes = rsa.Decrypt(bytes, false);
             return decrypted_bytes;
         }
+
     }
 }
