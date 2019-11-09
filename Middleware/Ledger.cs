@@ -6,6 +6,6 @@ namespace Digital_Signature_Verification
 {
     public static class Ledger
     {
-        internal static List<RSA> KeysManifest = new List<RSA>();
+        internal static List<CryptographyHelper> KeysManifest = new List<CryptographyHelper>();
     }
 }

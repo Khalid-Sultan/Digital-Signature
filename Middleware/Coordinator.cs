@@ -170,7 +170,7 @@ namespace Digital_Signature_Verification
         }
         public void ExchangeKeysWithServer(string targetUsername)
         {
-            foreach (RSA key in Ledger.KeysManifest)
+            foreach (CryptographyHelper key in Ledger.KeysManifest)
             {
                 if ((key.Receiver_Username == targetUsername ||
                     key.Sender_Username == targetUsername) &&
@@ -183,7 +183,7 @@ namespace Digital_Signature_Verification
                 }
 
             }
-            RSA newKey = new RSA(
+            CryptographyHelper newKey = new CryptographyHelper(
                 Sender_Username: this.UsersList[0].Username,
                 Receiver_Username: targetUsername
             );
@@ -196,7 +196,7 @@ namespace Digital_Signature_Verification
         public void ServerSendMessages(string toUsername, string path)
         {
             string text = File.ReadAllText(path);
-            foreach (RSA key in Ledger.KeysManifest)
+            foreach (CryptographyHelper key in Ledger.KeysManifest)
             {
                 if ((key.Receiver_Username == toUsername ||
                     key.Sender_Username == toUsername) &&
@@ -206,18 +206,15 @@ namespace Digital_Signature_Verification
                 {
                     try
                     {
-                        byte[] encryptedBytes = key.EncryptText(text);
-                        string hash = key.GetHash(encryptedBytes);
+                        string encryptedText = key.EncryptContent(text);
+                        string hash = key.GetHash(encryptedText);
                         string fileName = $"S-ENCRYPTED{new Random().Next(50000).ToString()}.txt";
-                        Message message = new Message(encryptedBytes, Username, toUsername, hash);
+                        Message message = new Message(encryptedText, Username, toUsername, hash, Category.Message,fileName);
                         Stream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Write);
                         System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                         formatter.Serialize(stream, message);
                         stream.Close();
-
-                        string fileContents = StringHelper.convertToString(File.ReadAllBytes(fileName));
-
-                        SendMessageTo(this.UsersList[0], toUsername, fileContents);
+                        SendMessageTo(this.UsersList[0], toUsername, fileName);
                     }
                     catch (Exception ex)
                     {
@@ -227,9 +224,9 @@ namespace Digital_Signature_Verification
                 }
             }
         }
-        private void SendMessageTo(User from, string toUsername, string receivedMessage)
+        private void SendMessageTo(User from, string toUsername, string fileName)
         {
-            foreach (RSA key in Ledger.KeysManifest)
+            foreach (CryptographyHelper key in Ledger.KeysManifest)
             {
                 if ((key.Receiver_Username == toUsername ||
                     key.Sender_Username == toUsername) &&
@@ -237,13 +234,10 @@ namespace Digital_Signature_Verification
                     key.Sender_Username == from.Username)
                 )
                 {
-                    bool isSent = false;
 
-                    byte[] messageBytes = StringHelper.convertToByteArray(receivedMessage);
+                    bool isSent = false;
                     try
-                    { 
-                        string fileName = $"C-ENCRYPTED{new Random().Next(500000)}.txt";
-                        File.WriteAllBytes(fileName, messageBytes);
+                    {  
                         System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                         Stream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
                         Message message = (Message)formatter.Deserialize(stream);
@@ -259,12 +253,8 @@ namespace Digital_Signature_Verification
                             {
                                 if (user.Username == this.Username) continue;
                                 if (user.Username == toUsername)
-                                {
-                                    string cmd = $"{receivedMessage}";
-
-                                    byte[] dataToDecrypt = StringHelper.convertToByteArray(cmd);
-
-                                    user.SendMessage(dataToDecrypt);
+                                {  
+                                    user.SendMessage(fileName);
                                     isSent = true;
                                 }
                             }
@@ -303,46 +293,27 @@ namespace Digital_Signature_Verification
                     int x = user.Socket.Receive(inf, SocketFlags.None);
                     if (x > 0)
                     {
-                        string strMessage = StringHelper.convertToString(inf);
-
-                        if (strMessage.Substring(0, 8) == "/setname")
+                        string fileName = $"c{new Random().Next(500)}.dat";
+                        File.WriteAllBytes(fileName, inf);
+                        this._dispatcher.Invoke(new Action(() =>
                         {
-                            string newUsername = strMessage.Replace("/setname ", "").Trim('\0');
-                            user.Username = newUsername;
-                        }
-                        else if (strMessage.Substring(0, 5) == "/keys")
-                        {
-                            string receiver = strMessage.Replace("/keys ", "").Trim('\0').Replace("\n", "");
-                            foreach (RSA key in Ledger.KeysManifest)
+                            System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                            Stream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                            Message message = (Message)formatter.Deserialize(stream);
+                            stream.Close();
+                            switch (message.Category)
                             {
-                                if ((key.Receiver_Username == user.Username ||
-                                    key.Sender_Username == user.Username) &&
-                                    (key.Receiver_Username == receiver ||
-                                    key.Sender_Username == receiver)
-                                )
-                                {
-                                    MessageBox.Show("Coordinator: Keys are already exchanged.");
+                                case Category.Naming:
+                                    string newUsername = message.content;
+                                    user.Username = newUsername;
+                                    File.Delete(fileName);
                                     return;
-                                }
+                                case Category.Message:
+                                    SendMessageTo(user, message.Receiver_Username, message.File_Name);
+                                    File.Delete(fileName);
+                                    return;
                             }
-                            RSA newKey = new RSA
-                            (
-                                Sender_Username: user.Username,
-                                Receiver_Username: receiver
-                            );
-                            Ledger.KeysManifest.Add(newKey);
-                        }
-                        else if (strMessage.Substring(0, 6) == "/msgto")
-                        {
-                            string data = strMessage.Replace("/msgto ", "").Trim('\0');
-                            string targetUsername = data.Substring(0, data.IndexOf(':'));
-                            string encryptedMessage = data.Substring(data.IndexOf(':') + 1);
-                            this._dispatcher.Invoke(new Action(() =>
-                            {
-                                SendMessageTo(user, targetUsername, encryptedMessage);
-                            }), null);
-                        }
-
+                        }));
                     }
                 }
                 catch (Exception ex)

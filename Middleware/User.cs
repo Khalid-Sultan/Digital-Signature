@@ -43,9 +43,9 @@ namespace Digital_Signature_Verification
         }
 
         //Send Messages
-        public void SendMessage(byte[] message){
+        public void SendMessage(string path){
             try{
-                Socket.Send(message, SocketFlags.None);
+                Socket.SendFile(path);
             }
             catch(Exception ex){
                 MessageBox.Show($"User: {ex.Message.ToString()}");

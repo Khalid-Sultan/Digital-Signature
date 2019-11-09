@@ -8,90 +8,81 @@ namespace Digital_Signature_Verification
 {
     public class RSA
     {
-        public string Sender_Username { get; set; }
-        public string Receiver_Username { get; set; }
-        public string Public_Key { get; set; }
-        private string Private_Key { get; set; }
-        private SHA512 SHA_Hasher { get; set; }
+        private bool _optimalAsymmetricEncryptionPadding = false;
 
-        private RSACryptoServiceProvider provider { get; set; }
-
-        public RSA(string Sender_Username, string Receiver_Username)
+        public string Encrypt(string text, string publicKeyXml, int keySize)
         {
-            this.Sender_Username = Sender_Username;
-            this.Receiver_Username = Receiver_Username;
-            RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
-            this.Public_Key = rsa.ToXmlString(false);
-            this.Private_Key = rsa.ToXmlString(true);
-            this.provider = rsa;
-
-            SHA512 SHA_Hasher = SHA512.Create();
-            this.SHA_Hasher = SHA_Hasher;
+            var encrypted = EncryptByteArray(Encoding.UTF8.GetBytes(text), publicKeyXml, keySize);
+            return Convert.ToBase64String(encrypted);
+        }
+        public string Decrypt(string text, string publicAndPrivateKeyXml, int keySize)
+        {
+            var decrypted = DecryptByteArray(Convert.FromBase64String(text), publicAndPrivateKeyXml, keySize);
+            return Encoding.UTF8.GetString(decrypted);
         }
 
-        public byte[] EncryptText(string text)
+        private byte[] EncryptByteArray(byte[] data, string publicKeyXml, int keySize)
         {
-            byte[] dataToEncrypt = StringHelper.convertToByteArray(text);
-
-            SymmetricAlgorithm symmetricAlgorithm = SymmetricAlgorithm.Create("Rijndael");
-            ICryptoTransform ct = symmetricAlgorithm.CreateEncryptor();
-            byte[] encryptedData = ct.TransformFinalBlock(dataToEncrypt, 0, dataToEncrypt.Length);
-            RSAPKCS1KeyExchangeFormatter formatter = new RSAPKCS1KeyExchangeFormatter(provider);
-            byte[] keyExchange = formatter.CreateKeyExchange(symmetricAlgorithm.Key);
-            byte[] result = new byte[keyExchange.Length + symmetricAlgorithm.IV.Length + encryptedData.Length];
-            Buffer.BlockCopy(keyExchange, 0, result, 0, keyExchange.Length);
-            Buffer.BlockCopy(symmetricAlgorithm.IV, 0, result, keyExchange.Length, symmetricAlgorithm.IV.Length);
-            Buffer.BlockCopy(encryptedData, 0, result, keyExchange.Length+symmetricAlgorithm.IV.Length, encryptedData.Length);
-            return result;
-        }
-        public byte[] DecryptData(string text)
-        {
-            byte[] dataToDecrypt = StringHelper.convertToByteArray(text);
-
-            SymmetricAlgorithm symmetricAlgorithm = SymmetricAlgorithm.Create("Rijndael");
-            byte[] keyExchange = new byte[provider.KeySize >> 3];
-            Buffer.BlockCopy(dataToDecrypt, 0, keyExchange, 0, keyExchange.Length);
-
-            RSAPKCS1KeyExchangeDeformatter def = new RSAPKCS1KeyExchangeDeformatter(provider);
-            byte[] key = def.DecryptKeyExchange(keyExchange);
-
-            byte[] iv = new byte[symmetricAlgorithm.IV.Length];
-            Buffer.BlockCopy(dataToDecrypt, keyExchange.Length, iv, 0, iv.Length);
-
-            ICryptoTransform ct = symmetricAlgorithm.CreateDecryptor(key, iv);
-            byte[] decrypt = ct.TransformFinalBlock(dataToDecrypt, keyExchange.Length + iv.Length, dataToDecrypt.Length - (keyExchange.Length + iv.Length));
-            return decrypt;
-        }
-
-        public string GetHash(byte[] dataToHash)
-        { 
-            byte[] data = SHA_Hasher.ComputeHash(dataToHash);
-            StringBuilder builder = new StringBuilder();
-            for(int i=0; i < data.Length; i++)
+            if (data == null || data.Length == 0)
             {
-                builder.Append(data[i].ToString());
+                throw new ArgumentException("Data are empty", "data");
             }
-            string hash = builder.ToString();
-            return hash;
+            int maxLength = GetMaxDataLength(keySize);
+            if (data.Length > maxLength)
+            {
+                throw new ArgumentException(String.Format("Maximum data length is {0}", maxLength), "data");
+            }
+            if (!IsKeySizeValid(keySize))
+            {
+                throw new ArgumentException("Key size is not valid", "keySize");
+            }
+            if (String.IsNullOrEmpty(publicKeyXml))
+            {
+                throw new ArgumentException("Key is null or empty", "publicKeyXml");
+            }
+            using (var provider = new RSACryptoServiceProvider(keySize))
+            {
+                provider.FromXmlString(publicKeyXml);
+                return provider.Encrypt(data, _optimalAsymmetricEncryptionPadding);
+            }
         }
-        public bool VerifyHash(string text, string hash)
+        private byte[] DecryptByteArray(byte[] data, string publicAndPrivateKeyXml, int keySize)
         {
-            byte[] dataToHash = StringHelper.convertToByteArray(text);
-
-            byte[] HashOfInput = SHA_Hasher.ComputeHash(dataToHash);
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < HashOfInput.Length; i++)
+            if (data == null || data.Length == 0)
             {
-                builder.Append(HashOfInput[i].ToString());
+                throw new ArgumentException("Data are empty", "data");
             }
-            string cleanedHash = builder.ToString();
-            StringComparer comparer = StringComparer.OrdinalIgnoreCase;
-            if(comparer.Compare(cleanedHash, hash)==0)
+            if (!IsKeySizeValid(keySize))
             {
-                return true;
+                throw new ArgumentException("Key size is not valid", "keySize");
             }
-            return false;
+            if (String.IsNullOrEmpty(publicAndPrivateKeyXml))
+            {
+                throw new ArgumentException("Key is null or empty", "publicAndPrivateKeyXml");
+            }
+            using (var provider = new RSACryptoServiceProvider(keySize))
+            {
+                provider.FromXmlString(publicAndPrivateKeyXml);
+                return provider.Decrypt(data, _optimalAsymmetricEncryptionPadding);
+            }
         }
+
+        public int GetMaxDataLength(int keySize)
+        {
+            if (_optimalAsymmetricEncryptionPadding)
+            {
+                return ((keySize - 384) / 8) + 7;
+            }
+            return ((keySize - 384) / 8) + 37;
+        }
+
+        public bool IsKeySizeValid(int keySize)
+        {
+            return keySize >= 384 && keySize <= 16384 && keySize % 8 == 0;
+        }
+
 
     }
+
 }
+

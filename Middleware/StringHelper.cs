@@ -8,20 +8,19 @@ namespace Digital_Signature_Verification
     {
         internal static byte[] convertToByteArray(string text) 
         {
-            Encoding ascii = Encoding.ASCII;
+            Encoding ascii = Encoding.UTF8;
             Encoding unicode = Encoding.Unicode;
-            byte[] bytesInUnicode = unicode.GetBytes(text);
-            byte[] bytesInAscii = Encoding.Convert(unicode, ascii, bytesInUnicode);
-            return bytesInAscii;
-        }
+            byte[] bytesInAscii = ascii.GetBytes(text);
+            byte[] bytesInUnicode = Encoding.Convert(ascii, unicode, bytesInAscii);
+            return bytesInUnicode; 
+        } 
         internal static string convertToString(byte[] byteArray)
         {
-            Encoding ascii = Encoding.ASCII;
             Encoding unicode = Encoding.Unicode;
-            char[] charsInAscii = new char[ascii.GetCharCount(byteArray, 0, byteArray.Length)];
-            ascii.GetChars(byteArray, 0, byteArray.Length, charsInAscii, 0);
-            return new string(charsInAscii);
-        }
+            char[] charsInUnicode = new char[unicode.GetCharCount(byteArray, 0, byteArray.Length)];
+            unicode.GetChars(byteArray, 0, byteArray.Length, charsInUnicode, 0);
+            return new string(charsInUnicode); 
+        } 
 
     }
 }

@@ -26,14 +26,7 @@ namespace Digital_Signature_Verification
             InitializeComponent();
 
             this.message = message;
-            string text = StringHelper.convertToString(message.Bytes);
-
-            FileContents.Text = text;
-        }
-
-        private void DecryptButton_Click(object sender, RoutedEventArgs e)
-        {
-            foreach (RSA key in Ledger.KeysManifest)
+            foreach (CryptographyHelper key in Ledger.KeysManifest)
             {
                 if ((key.Receiver_Username == message.Receiver_Username ||
                     key.Sender_Username == message.Receiver_Username) &&
@@ -41,17 +34,26 @@ namespace Digital_Signature_Verification
                     key.Sender_Username == message.Sender_Username)
                 )
                 {
-                    byte[] decryptedBytes = key.DecryptData(FileContents.Text);
-                    string decryptedText = StringHelper.convertToString(decryptedBytes);
-
-                    FileContents.Text = decryptedText;
-                    return;
+                    try
+                    {
+                        string text = message.content;
+                        string clearedText = key.DecryptContent(text);
+                        FileContents.Text = clearedText;
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Failed To Decrypt Data\nRoot Error: {ex.Message.ToString()}");
+                        return;
+                    }
                 }
             }
+
         }
+         
         private void VerifyButton_Click(object sender, RoutedEventArgs e)
         {
-            foreach (RSA key in Ledger.KeysManifest)
+            foreach (CryptographyHelper key in Ledger.KeysManifest)
             {
                 if ((key.Receiver_Username == message.Receiver_Username ||
                     key.Sender_Username == message.Receiver_Username) &&

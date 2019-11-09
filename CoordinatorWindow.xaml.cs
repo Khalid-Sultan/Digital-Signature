@@ -32,7 +32,7 @@ namespace Digital_Signature_Verification
                 if (lbActiveClients.SelectedValue is User)
                 {
                     tbTargetUsername.Text = (lbActiveClients.SelectedValue as User).Username;
-                    foreach (RSA key in Ledger.KeysManifest)
+                    foreach (CryptographyHelper key in Ledger.KeysManifest)
                     {
                         if ((key.Receiver_Username == tbTargetUsername.Text ||
                             key.Sender_Username == tbTargetUsername.Text) &&

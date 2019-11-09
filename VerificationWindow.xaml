@@ -8,11 +8,10 @@
         Title="Verification Window" Height="450" Width="600">
     <DockPanel LastChildFill="True">
         <Label Content="File Contents" DockPanel.Dock="Top" HorizontalContentAlignment="Center" FontWeight="DemiBold" FontSize="14" Background="AliceBlue"/>
-        <TextBox x:Name="FileContents" Text="TextBox" TextWrapping="Wrap" DockPanel.Dock="Top" Height="360" VerticalScrollBarVisibility="Auto"/>
-        <StackPanel Orientation="Horizontal">
-            <Button x:Name="DecryptButton" DockPanel.Dock="Bottom" Width="200" Content="DECRYPT" Click="DecryptButton_Click"/>
-            <Button x:Name="VerifyButton" DockPanel.Dock="Bottom" Width="200" Content="VERIFY" Click="VerifyButton_Click"/>
-            <Button x:Name="SaveButton" DockPanel.Dock="Bottom" Width="200" Content="SAVE" Click="SaveButton_Click"/>
+        <TextBox x:Name="FileContents" Text="TextBox" TextWrapping="Wrap" DockPanel.Dock="Top" Height="360" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" IsReadOnly="False" IsEnabled="True" AcceptsTab="True"/>
+        <StackPanel Orientation="Horizontal"> 
+            <Button x:Name="VerifyButton" DockPanel.Dock="Bottom" Width="300" Content="VERIFY" Click="VerifyButton_Click"/>
+            <Button x:Name="SaveButton" DockPanel.Dock="Bottom" Width="300" Content="SAVE" Click="SaveButton_Click"/>
         </StackPanel>
     </DockPanel>
 </Window>
