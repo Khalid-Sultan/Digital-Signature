@@ -65,6 +65,7 @@ namespace Digital_Signature_Verification
         {
             OpenFileDialog openFile = new OpenFileDialog();
             openFile.DefaultExt = ".txt";
+            openFile.Filter = "Text files (*.txt)|*.txt";
             Nullable<bool> openedFile = openFile.ShowDialog();
             if (openedFile.HasValue)
             {

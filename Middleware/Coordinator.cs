@@ -173,7 +173,39 @@ namespace Digital_Signature_Verification
 
 
         #region Messaging Methods
-        public void ServerSendMessages(string toUsername, string messageContent) => this.SendMessageTo(this.UsersList[0], toUsername, messageContent);
+        public void ServerSendMessages(string toUsername, string path)
+        {
+            string text = File.ReadAllText(path);
+            foreach (RSA key in Ledger.KeysManifest)
+            {
+                if ((key.Receiver_Username == toUsername ||
+                    key.Sender_Username == toUsername) &&
+                    (key.Receiver_Username == this.Username ||
+                    key.Sender_Username == this.Username)
+                )
+                {
+                    byte[] encryptedBytes = key.EncryptText(text);
+                    string hash = key.GetHash(text);
+                    string fileName = $"S-ENCRYPTED{new Random().Next(50000).ToString()}.dat";
+                    Message message = new Message(encryptedBytes, Username, toUsername, hash);
+                    Stream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Write);
+                    System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                    formatter.Serialize(stream, message);
+                    stream.Close();
+
+                    string fileContents = Encoding.Unicode.GetString(File.ReadAllBytes(fileName));
+                    try
+                    {
+                        SendMessageTo(this.UsersList[0], toUsername, fileContents);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Coordinator: {ex.Message.ToString()}");
+                    }
+                    return;
+                }
+            } 
+        }
         private void SendMessageTo(User from, string toUsername, string receivedMessage)
         {  
             foreach (RSA key in Ledger.KeysManifest)
@@ -185,34 +217,33 @@ namespace Digital_Signature_Verification
                 )
                 {
                     bool isSent = false;
+
                     UnicodeEncoding byteConverter = new UnicodeEncoding();
-                    byte[] messageBytes = byteConverter.GetBytes(receivedMessage);
-                    // if target is server
+                    byte[] messageBytes = byteConverter.GetBytes(receivedMessage); 
+
                     if (toUsername == this.Username)
                     {
-                        string fileName = $"C-ENCRYPTED{new Random(Seed: 151).Next(500000)}.dat";
+                        string fileName = $"C-ENCRYPTED{new Random().Next(500000)}.dat";
                         File.WriteAllBytes(fileName, messageBytes);
                         System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                         Stream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-                        Message message = (Message)formatter.Deserialize(stream);
-                        message.SetFileName(fileName);
+                        Message message = (Message)formatter.Deserialize(stream); 
                         stream.Close();
                         this.MessagesList.Add(message);
                         isSent = true;
                     }
                     else
                     {
-                        // if target username is registered
                         foreach (User user in UsersList)
                         {
                             if (user.Username == toUsername)
-                            {
-                                user.SendMessage(messageBytes);
+                            {  
+                                string cmd = $"{receivedMessage}"; 
+                                user.SendMessage(Encoding.Unicode.GetBytes(cmd));
                                 isSent = true;
                             }
                         }
-                    }
-                    // if target username isn't registered
+                    } 
                     if (!isSent)
                     {
                         MessageBox.Show("Coordinator: Error! Username not found, unable to deliver your message"); 

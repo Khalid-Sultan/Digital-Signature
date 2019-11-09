@@ -9,9 +9,6 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="ClientWindow.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Update="CoordinatorWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -20,9 +17,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="ClientWindow.xaml">
-      <SubType>Designer</SubType>
-    </Page>
     <Page Update="CoordinatorWindow.xaml">
       <SubType>Designer</SubType>
     </Page>

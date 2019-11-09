@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NETCOREAPP;NETCOREAPP3_0
 A:\VisualStudioProjects\Digital Signature Verification\App.xaml
-5580966323
+3-685582529
 
-241862803449
+15-2031859495
 192-1037106189
-ClientWindow.xaml;CoordinatorWindow.xaml;MainWindow.xaml;ServerWindow.xaml;UserWindow.xaml;
+CoordinatorWindow.xaml;MainWindow.xaml;UserWindow.xaml;
 
 False
 

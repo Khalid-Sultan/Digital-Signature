@@ -95,8 +95,8 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <Label x:Name="Sender" Width="75" Content="{Binding Sender_Username}"/>
-                            <Label x:Name="Receiver" Width="75"  Content="{Binding Receiver_Username}"/>
+                            <Label x:Name="Sender" Width="150" Content="{Binding Sender_Username}"/>
+                            <Label x:Name="Receiver" Width="150"  Content="{Binding Receiver_Username}"/>
                             <Button x:Name="Open" Width="50" Content="Open"/>
                             <Button x:Name="Verify" Width="50" Content="Verify"/>
                         </StackPanel>

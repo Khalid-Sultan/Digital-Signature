@@ -149,26 +149,35 @@ namespace Digital_Signature_Verification
 
         #region Messaging Methods
         public void ReceiveMessages(){
-            while (true) {
-                byte[] inf = new byte[8192];
-                try {
-                    if (!IsSocketConnected(this._socket)) {
+            while (true)
+            {
+                try
+                {
+                    if (!IsSocketConnected(this._socket))
+                    {
                         this._dispatcher.Invoke(new Action(() =>
                         {
                             this.Disconnect();
                         }));
                         return;
                     }
-                    int x = this._socket.Receive(inf);
-                    if (x > 0) {
+
+                    byte[] inf = new byte[4096];
+                    int x = this._socket.Receive(inf, SocketFlags.None);
+                    if (x > 0)
+                    {
+                        string strMessage = Encoding.Unicode.GetString(inf);
+                        UnicodeEncoding byteConverter = new UnicodeEncoding();
+                        byte[] messageBytes = byteConverter.GetBytes(strMessage);
+
+
                         string fileName = $"R-ENCRYPTED{new Random().Next(500000)}.dat";
-                        File.WriteAllBytes(fileName, inf);
+                        File.WriteAllBytes(fileName, messageBytes);
                         this._dispatcher.Invoke(new Action(() =>
                         {
                             System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                             Stream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
                             Message message = (Message)formatter.Deserialize(stream);
-                            message.SetFileName(fileName);
                             stream.Close();
                             this.Messages.Add(message);
                         }));
@@ -196,20 +205,17 @@ namespace Digital_Signature_Verification
                 )
                 {
                     byte[] encryptedBytes = key.EncryptText(text);
-                    string hashBytes = key.GetHash(text);
-                    Message message = new Message(encryptedBytes, Username, targetUsername, hashBytes);
-                    string fileName = $"S-ENCRYPTED{new Random(151).Next(50000).ToString()}.dat";
-                    message.SetFileName(fileName);
+                    string hash = key.GetHash(text);
+                    string fileName = $"S-ENCRYPTED{new Random().Next(50000).ToString()}.dat";
+                    Message message = new Message(encryptedBytes, Username, targetUsername, hash);
                     Stream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Write);
                     System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                     formatter.Serialize(stream, message);
                     stream.Close();
 
-                    byte[] signedData = File.ReadAllBytes(fileName);
-                    UnicodeEncoding byteConverter = new UnicodeEncoding();
-                    string messageString = byteConverter.GetString(signedData); 
-
-                    string cmd = $"/msgto {targetUsername}:{messageString}";
+                    string fileContents = Encoding.Unicode.GetString(File.ReadAllBytes(fileName));
+                    string cmd = $"/msgto {targetUsername}:{fileContents}";
+                     
                     try
                     {
                         this._socket.Send(Encoding.Unicode.GetBytes(cmd), SocketFlags.None);

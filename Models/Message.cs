@@ -12,7 +12,6 @@ namespace Digital_Signature_Verification
         public string Receiver_Username { get; set; }
         public bool Is_Encrypted { get; set; } = true;
         public string Hash { get; set; }
-        public string File_Name { get; set; }
 
         public Message(byte[] Bytes, string Sender_Username, string Receiver_Username, string Hash)
         {
@@ -20,11 +19,6 @@ namespace Digital_Signature_Verification
             this.Sender_Username = Sender_Username;
             this.Receiver_Username = Receiver_Username;
             this.Hash = Hash;
-        }
-
-        public void SetFileName(string File_Name)
-        {
-            this.File_Name = File_Name;
         }
     }
 }
