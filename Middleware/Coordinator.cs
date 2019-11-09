@@ -31,31 +31,40 @@ namespace Digital_Signature_Verification
         public bool IsServerStopped => !this.IsServerActive;
         public int ActiveUsers => UsersList.Count;
 
-        public int Port {
-            get {
+        public int Port
+        {
+            get
+            {
                 return _port;
             }
-            set {
+            set
+            {
                 if (this.IsServerActive)
                     throw new Exception("Can't change this property when server is active");
                 this._port = value;
             }
         }
-        public string IpAddress {
-            get {
+        public string IpAddress
+        {
+            get
+            {
                 return _ipAddress.ToString();
             }
-            set {
+            set
+            {
                 if (this.IsServerActive)
                     throw new Exception("Can't change this property when server is active");
                 _ipAddress = IPAddress.Parse(value);
             }
         }
-        public string Username {
-            get {
+        public string Username
+        {
+            get
+            {
                 return _username;
             }
-            set {
+            set
+            {
                 this._username = value;
                 if (this.IsServerActive)
                 {
@@ -63,11 +72,14 @@ namespace Digital_Signature_Verification
                 }
             }
         }
-        public bool IsServerActive  {
-            get {
+        public bool IsServerActive
+        {
+            get
+            {
                 return _isServerActive;
             }
-            private set {
+            private set
+            {
                 this._isServerActive = value;
 
                 this.NotifyPropertyChanged("IsServerActive");
@@ -98,7 +110,8 @@ namespace Digital_Signature_Verification
         #endregion
 
         #region Connection Methods
-        public void StartServer() {
+        public void StartServer()
+        {
             if (this.IsServerActive) return;
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _socket.Bind(_ipEndPoint);
@@ -122,19 +135,23 @@ namespace Digital_Signature_Verification
             _socket = null;
             this.IsServerActive = false;
         }
-        public void SwitchServerState() {
+        public void SwitchServerState()
+        {
             if (!this.IsServerActive) this.StartServer();
             else this.StopServer();
         }
-        void WaitForConnections() {
-            while (true) {
+        void WaitForConnections()
+        {
+            while (true)
+            {
                 if (_socket == null) return;
                 User user = new User
                 {
                     ID = this._clientIdCounter,
                     Username = "NewUser"
                 };
-                try {
+                try
+                {
                     user.Socket = _socket.Accept();
                     user.Thread = new Thread(() => CoordinateMessages(user));
 
@@ -145,13 +162,16 @@ namespace Digital_Signature_Verification
 
                     user.Thread.Start();
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     MessageBox.Show($"Coordinator : {ex.Message}", "Error");
                 }
             }
         }
-        public void ExchangeKeysWithServer(string targetUsername) {
-            foreach (RSA key in Ledger.KeysManifest) {
+        public void ExchangeKeysWithServer(string targetUsername)
+        {
+            foreach (RSA key in Ledger.KeysManifest)
+            {
                 if ((key.Receiver_Username == targetUsername ||
                     key.Sender_Username == targetUsername) &&
                     (key.Receiver_Username == this.UsersList[0].Username ||
@@ -184,18 +204,19 @@ namespace Digital_Signature_Verification
                     key.Sender_Username == this.Username)
                 )
                 {
-                    byte[] encryptedBytes = key.EncryptText(text);
-                    string hash = key.GetHash(text);
-                    string fileName = $"S-ENCRYPTED{new Random().Next(50000).ToString()}.dat";
-                    Message message = new Message(encryptedBytes, Username, toUsername, hash);
-                    Stream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Write);
-                    System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                    formatter.Serialize(stream, message);
-                    stream.Close();
-
-                    string fileContents = Encoding.Unicode.GetString(File.ReadAllBytes(fileName));
                     try
                     {
+                        byte[] encryptedBytes = key.EncryptText(text);
+                        string hash = key.GetHash(encryptedBytes);
+                        string fileName = $"S-ENCRYPTED{new Random().Next(50000).ToString()}.txt";
+                        Message message = new Message(encryptedBytes, Username, toUsername, hash);
+                        Stream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Write);
+                        System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                        formatter.Serialize(stream, message);
+                        stream.Close();
+
+                        string fileContents = StringHelper.convertToString(File.ReadAllBytes(fileName));
+
                         SendMessageTo(this.UsersList[0], toUsername, fileContents);
                     }
                     catch (Exception ex)
@@ -204,10 +225,10 @@ namespace Digital_Signature_Verification
                     }
                     return;
                 }
-            } 
+            }
         }
         private void SendMessageTo(User from, string toUsername, string receivedMessage)
-        {  
+        {
             foreach (RSA key in Ledger.KeysManifest)
             {
                 if ((key.Receiver_Username == toUsername ||
@@ -218,45 +239,60 @@ namespace Digital_Signature_Verification
                 {
                     bool isSent = false;
 
-                    UnicodeEncoding byteConverter = new UnicodeEncoding();
-                    byte[] messageBytes = byteConverter.GetBytes(receivedMessage); 
-
-                    if (toUsername == this.Username)
-                    {
-                        string fileName = $"C-ENCRYPTED{new Random().Next(500000)}.dat";
+                    byte[] messageBytes = StringHelper.convertToByteArray(receivedMessage);
+                    try
+                    { 
+                        string fileName = $"C-ENCRYPTED{new Random().Next(500000)}.txt";
                         File.WriteAllBytes(fileName, messageBytes);
                         System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                         Stream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-                        Message message = (Message)formatter.Deserialize(stream); 
+                        Message message = (Message)formatter.Deserialize(stream);
                         stream.Close();
                         this.MessagesList.Add(message);
-                        isSent = true;
-                    }
-                    else
-                    {
-                        foreach (User user in UsersList)
+                        if (toUsername == this.Username)
                         {
-                            if (user.Username == toUsername)
-                            {  
-                                string cmd = $"{receivedMessage}"; 
-                                user.SendMessage(Encoding.Unicode.GetBytes(cmd));
-                                isSent = true;
+                            isSent = true;
+                        }
+                        else
+                        {
+                            foreach (User user in UsersList)
+                            {
+                                if (user.Username == this.Username) continue;
+                                if (user.Username == toUsername)
+                                {
+                                    string cmd = $"{receivedMessage}";
+
+                                    byte[] dataToDecrypt = StringHelper.convertToByteArray(cmd);
+
+                                    user.SendMessage(dataToDecrypt);
+                                    isSent = true;
+                                }
                             }
                         }
-                    } 
-                    if (!isSent)
-                    {
-                        MessageBox.Show("Coordinator: Error! Username not found, unable to deliver your message"); 
+                        if (!isSent)
+                        {
+                            MessageBox.Show("Coordinator: Error! Username not found, unable to deliver your message");
+                        }
+                        return;
                     }
-
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Coordinator: {ex.Message.ToString()}");
+                    }
+                    return;
                 }
             }
         }
-        void CoordinateMessages(User user) {
-            while (true) {
-                try {
-                    if (!user.IsSocketConnected()) {
-                        this._dispatcher.Invoke(new Action(() => {
+        void CoordinateMessages(User user)
+        {
+            while (true)
+            {
+                try
+                {
+                    if (!user.IsSocketConnected())
+                    {
+                        this._dispatcher.Invoke(new Action(() =>
+                        {
                             UsersList.Remove(user);
                             user.Dispose();
                         }), null);
@@ -267,7 +303,8 @@ namespace Digital_Signature_Verification
                     int x = user.Socket.Receive(inf, SocketFlags.None);
                     if (x > 0)
                     {
-                        string strMessage = Encoding.Unicode.GetString(inf);
+                        string strMessage = StringHelper.convertToString(inf);
+
                         if (strMessage.Substring(0, 8) == "/setname")
                         {
                             string newUsername = strMessage.Replace("/setname ", "").Trim('\0');

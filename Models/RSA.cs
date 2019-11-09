@@ -12,6 +12,7 @@ namespace Digital_Signature_Verification
         public string Receiver_Username { get; set; }
         public string Public_Key { get; set; }
         private string Private_Key { get; set; }
+        private SHA512 SHA_Hasher { get; set; }
 
         private RSACryptoServiceProvider provider { get; set; }
 
@@ -23,12 +24,15 @@ namespace Digital_Signature_Verification
             this.Public_Key = rsa.ToXmlString(false);
             this.Private_Key = rsa.ToXmlString(true);
             this.provider = rsa;
+
+            SHA512 SHA_Hasher = SHA512.Create();
+            this.SHA_Hasher = SHA_Hasher;
         }
 
         public byte[] EncryptText(string text)
         {
-            UnicodeEncoding byteConverter = new UnicodeEncoding();
-            byte[] dataToEncrypt = byteConverter.GetBytes(text);
+            byte[] dataToEncrypt = StringHelper.convertToByteArray(text);
+
             SymmetricAlgorithm symmetricAlgorithm = SymmetricAlgorithm.Create("Rijndael");
             ICryptoTransform ct = symmetricAlgorithm.CreateEncryptor();
             byte[] encryptedData = ct.TransformFinalBlock(dataToEncrypt, 0, dataToEncrypt.Length);
@@ -40,23 +44,27 @@ namespace Digital_Signature_Verification
             Buffer.BlockCopy(encryptedData, 0, result, keyExchange.Length+symmetricAlgorithm.IV.Length, encryptedData.Length);
             return result;
         }
-        public string DecryptData(string filename)
+        public byte[] DecryptData(string text)
         {
-            byte[] dataToDecrypt = File.ReadAllBytes(filename);
-            byte[] decryptedData;
-            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
-            {
-                rsa.FromXmlString(Private_Key);
-                decryptedData = rsa.Decrypt(dataToDecrypt, false);
-            } 
-            string decryptedFileName = $"DECRYPTED - {new Random(Seed: 151).Next(500000)}.txt";
-            return decryptedFileName;
+            byte[] dataToDecrypt = StringHelper.convertToByteArray(text);
+
+            SymmetricAlgorithm symmetricAlgorithm = SymmetricAlgorithm.Create("Rijndael");
+            byte[] keyExchange = new byte[provider.KeySize >> 3];
+            Buffer.BlockCopy(dataToDecrypt, 0, keyExchange, 0, keyExchange.Length);
+
+            RSAPKCS1KeyExchangeDeformatter def = new RSAPKCS1KeyExchangeDeformatter(provider);
+            byte[] key = def.DecryptKeyExchange(keyExchange);
+
+            byte[] iv = new byte[symmetricAlgorithm.IV.Length];
+            Buffer.BlockCopy(dataToDecrypt, keyExchange.Length, iv, 0, iv.Length);
+
+            ICryptoTransform ct = symmetricAlgorithm.CreateDecryptor(key, iv);
+            byte[] decrypt = ct.TransformFinalBlock(dataToDecrypt, keyExchange.Length + iv.Length, dataToDecrypt.Length - (keyExchange.Length + iv.Length));
+            return decrypt;
         }
-        public string GetHash(string text)
-        {
-            SHA512 SHA_Hasher = SHA512.Create();            
-            UnicodeEncoding byteConverter = new UnicodeEncoding();
-            byte[] dataToHash = byteConverter.GetBytes(text);
+
+        public string GetHash(byte[] dataToHash)
+        { 
             byte[] data = SHA_Hasher.ComputeHash(dataToHash);
             StringBuilder builder = new StringBuilder();
             for(int i=0; i < data.Length; i++)
@@ -68,9 +76,17 @@ namespace Digital_Signature_Verification
         }
         public bool VerifyHash(string text, string hash)
         {
-            string HashOfInput = GetHash(text);
+            byte[] dataToHash = StringHelper.convertToByteArray(text);
+
+            byte[] HashOfInput = SHA_Hasher.ComputeHash(dataToHash);
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < HashOfInput.Length; i++)
+            {
+                builder.Append(HashOfInput[i].ToString());
+            }
+            string cleanedHash = builder.ToString();
             StringComparer comparer = StringComparer.OrdinalIgnoreCase;
-            if(0==comparer.Compare(HashOfInput, hash))
+            if(comparer.Compare(cleanedHash, hash)==0)
             {
                 return true;
             }

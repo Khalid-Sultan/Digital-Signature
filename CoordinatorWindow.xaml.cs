@@ -93,5 +93,15 @@ namespace Digital_Signature_Verification
                 tbMessage.Content = "Browse: Selected " + openFile.SafeFileName;
             }
         }
+
+        private void View_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = (Button)sender;
+            if (btn.DataContext is Message)
+            {
+                Message message = (Message)btn.DataContext;
+                new VerificationWindow(message).Show();
+            }
+        }
     }
 }

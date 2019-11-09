@@ -30,34 +30,44 @@ namespace Digital_Signature_Verification
         public BindingList<Message> Messages { get; set; }
 
 
-        public bool IsClientConnected {
-            get {
+        public bool IsClientConnected
+        {
+            get
+            {
                 return _isClientConnected;
             }
-            private set {
+            private set
+            {
                 this._isClientConnected = value;
                 this.NotifyPropertyChanged("IsClientConnected");
                 this.NotifyPropertyChanged("IsClientDisconnected");
             }
         }
 
-        public string Username {
-            get {
+        public string Username
+        {
+            get
+            {
                 return _username;
             }
-            set {
+            set
+            {
                 this._username = value;
-                if (this.IsClientConnected) {
+                if (this.IsClientConnected)
+                {
                     this.SetUsername(value);
                 }
             }
         }
         private void SetUsername(string newUsername)
         {
+            
             string cmd = string.Format("/setname {0}", newUsername);
             try
             {
-                this._socket.Send(Encoding.Unicode.GetBytes(cmd), SocketFlags.None);
+                byte[] dataToDecrypt = StringHelper.convertToByteArray(cmd);
+
+                this._socket.Send(dataToDecrypt, SocketFlags.None);
             }
             catch (Exception ex)
             {
@@ -65,21 +75,27 @@ namespace Digital_Signature_Verification
             }
         }
 
-        public string IpAddress{
-            get {
+        public string IpAddress
+        {
+            get
+            {
                 return _ipAddress.ToString();
             }
-            set {
+            set
+            {
                 if (this.IsClientConnected)
                     throw new Exception("Can't change this property when server is active");
                 _ipAddress = IPAddress.Parse(value);
             }
         }
-        public int Port {
-            get {
+        public int Port
+        {
+            get
+            {
                 return _port;
             }
-            set {
+            set
+            {
                 if (this.IsClientConnected)
                     throw new Exception("Can't change this property when server is active");
                 this._port = value;
@@ -101,7 +117,8 @@ namespace Digital_Signature_Verification
         #endregion
 
         #region Connection Methods
-        public static bool IsSocketConnected(Socket s){
+        public static bool IsSocketConnected(Socket s)
+        {
             if (!s.Connected) return false;
             if (s.Available == 0)
                 if (s.Poll(1500, SelectMode.SelectRead))
@@ -113,7 +130,8 @@ namespace Digital_Signature_Verification
             if (!this.IsClientConnected) this.Connect();
             else this.Disconnect();
         }
-        private void Connect() {
+        private void Connect()
+        {
             if (this.IsClientConnected) return;
 
             this._socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -123,9 +141,11 @@ namespace Digital_Signature_Verification
             this._thread.Start();
             this.IsClientConnected = true;
         }
-        private void Disconnect(){
+        private void Disconnect()
+        {
             if (!this.IsClientConnected) return;
-            if (this._socket != null && this._thread != null){
+            if (this._socket != null && this._thread != null)
+            {
                 this._socket.Shutdown(SocketShutdown.Both);
                 this._socket.Dispose();
                 this._socket = null;
@@ -134,10 +154,14 @@ namespace Digital_Signature_Verification
             this.Messages.Clear();
             this.IsClientConnected = false;
         }
-        public void ExchangeKeys(string targetUsername){
+        public void ExchangeKeys(string targetUsername)
+        {
             string cmd = string.Format("/keys {0}\n", targetUsername);
-            try {
-                this._socket.Send(Encoding.Unicode.GetBytes(cmd), SocketFlags.None);
+            try
+            {
+                byte[] dataToDecrypt = StringHelper.convertToByteArray(cmd);
+
+                this._socket.Send(dataToDecrypt, SocketFlags.None);
             }
             catch (Exception ex)
             {
@@ -148,7 +172,8 @@ namespace Digital_Signature_Verification
         #endregion
 
         #region Messaging Methods
-        public void ReceiveMessages(){
+        public void ReceiveMessages()
+        {
             while (true)
             {
                 try
@@ -166,12 +191,10 @@ namespace Digital_Signature_Verification
                     int x = this._socket.Receive(inf, SocketFlags.None);
                     if (x > 0)
                     {
-                        string strMessage = Encoding.Unicode.GetString(inf);
-                        UnicodeEncoding byteConverter = new UnicodeEncoding();
-                        byte[] messageBytes = byteConverter.GetBytes(strMessage);
+                        string dataString = StringHelper.convertToString(inf);
+                        byte[] messageBytes = StringHelper.convertToByteArray(dataString);
 
-
-                        string fileName = $"R-ENCRYPTED{new Random().Next(500000)}.dat";
+                        string fileName = $"R-ENCRYPTED{new Random().Next(500000)}.txt";
                         File.WriteAllBytes(fileName, messageBytes);
                         this._dispatcher.Invoke(new Action(() =>
                         {
@@ -183,8 +206,10 @@ namespace Digital_Signature_Verification
                         }));
                     }
                 }
-                catch (Exception ex){
-                    this._dispatcher.Invoke(new Action(() => {
+                catch (Exception ex)
+                {
+                    this._dispatcher.Invoke(new Action(() =>
+                    {
                         MessageBox.Show($"Client: {ex.Message.ToString()}");
                         this.Disconnect();
                     }));
@@ -204,21 +229,24 @@ namespace Digital_Signature_Verification
                     key.Sender_Username == this.Username)
                 )
                 {
-                    byte[] encryptedBytes = key.EncryptText(text);
-                    string hash = key.GetHash(text);
-                    string fileName = $"S-ENCRYPTED{new Random().Next(50000).ToString()}.dat";
-                    Message message = new Message(encryptedBytes, Username, targetUsername, hash);
-                    Stream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Write);
-                    System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                    formatter.Serialize(stream, message);
-                    stream.Close();
-
-                    string fileContents = Encoding.Unicode.GetString(File.ReadAllBytes(fileName));
-                    string cmd = $"/msgto {targetUsername}:{fileContents}";
-                     
                     try
                     {
-                        this._socket.Send(Encoding.Unicode.GetBytes(cmd), SocketFlags.None);
+                        byte[] encryptedBytes = key.EncryptText(text);
+                        string hash = key.GetHash(encryptedBytes);
+                        string fileName = $"S-ENCRYPTED{new Random().Next(50000).ToString()}.txt";
+                        Message message = new Message(encryptedBytes, Username, targetUsername, hash);
+                        Stream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Write);
+                        System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                        formatter.Serialize(stream, message);
+                        stream.Close();
+
+                        string fileContents = StringHelper.convertToString(File.ReadAllBytes(fileName));
+
+                        string cmd = $"/msgto {targetUsername}:{fileContents}";
+
+                        byte[] messageBytes = StringHelper.convertToByteArray(cmd);
+
+                        this._socket.Send(messageBytes, SocketFlags.None);
                     }
                     catch (Exception ex)
                     {

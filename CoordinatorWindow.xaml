@@ -95,10 +95,10 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <Label x:Name="Sender" Width="150" Content="{Binding Sender_Username}"/>
-                            <Label x:Name="Receiver" Width="150"  Content="{Binding Receiver_Username}"/>
-                            <Button x:Name="Open" Width="50" Content="Open"/>
-                            <Button x:Name="Verify" Width="50" Content="Verify"/>
+                            <Label x:Name="Sender" Width="125" Content="{Binding Sender_Username}"/>
+                            <Label Content="-> To ->" Width="50"/>
+                            <Label x:Name="Receiver" Width="125"  Content="{Binding Receiver_Username}"/>
+                            <Button x:Name="Open" Width="50" Content="Open" Click="View_Click"/>
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
