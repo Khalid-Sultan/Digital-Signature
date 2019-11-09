@@ -48,7 +48,7 @@ namespace Digital_Signature_Verification
                 Socket.Send(message);
             }
             catch(Exception ex){
-                MessageBox.Show(ex.Message.ToString());
+                MessageBox.Show($"User: {ex.Message.ToString()}");
             }
         }
 

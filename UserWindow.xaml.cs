@@ -36,7 +36,7 @@ namespace Digital_Signature_Verification
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"User: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -55,7 +55,7 @@ namespace Digital_Signature_Verification
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"User: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 tbMessage.IsEnabled = false;
                 bSend.IsEnabled = false;
             }

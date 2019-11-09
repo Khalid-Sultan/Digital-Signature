@@ -61,7 +61,7 @@ namespace Digital_Signature_Verification
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Client Name Error : {ex.Message.ToString()}");
+                MessageBox.Show($"Client: {ex.Message.ToString()}");
             }
         }
 
@@ -150,7 +150,7 @@ namespace Digital_Signature_Verification
         #region Messaging Methods
         public void ReceiveMessages(){
             while (true) {
-                byte[] inf = new byte[4096];
+                byte[] inf = new byte[8192];
                 try {
                     if (!IsSocketConnected(this._socket)) {
                         this._dispatcher.Invoke(new Action(() =>
@@ -161,13 +161,14 @@ namespace Digital_Signature_Verification
                     }
                     int x = this._socket.Receive(inf);
                     if (x > 0) {
-                        string fileName = $"ENCRYPTED - {new Random(Seed: 151).Next(500000)}.txt";
+                        string fileName = $"R-ENCRYPTED{new Random().Next(500000)}.dat";
                         File.WriteAllBytes(fileName, inf);
                         this._dispatcher.Invoke(new Action(() =>
                         {
                             System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                             Stream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
                             Message message = (Message)formatter.Deserialize(stream);
+                            message.SetFileName(fileName);
                             stream.Close();
                             this.Messages.Add(message);
                         }));
@@ -175,7 +176,7 @@ namespace Digital_Signature_Verification
                 }
                 catch (Exception ex){
                     this._dispatcher.Invoke(new Action(() => {
-                        MessageBox.Show($"Client Receiving Messages Error: {ex.Message.ToString()}");
+                        MessageBox.Show($"Client: {ex.Message.ToString()}");
                         this.Disconnect();
                     }));
                     return;
@@ -195,15 +196,20 @@ namespace Digital_Signature_Verification
                 )
                 {
                     byte[] encryptedBytes = key.EncryptText(text);
-                    Message message = new Message(encryptedBytes, Username, targetUsername, text.GetHashCode());
-                    string fileName = $"ENCRYPTED-{new Random(151).Next(50000).ToString()}.txt";
+                    string hashBytes = key.GetHash(text);
+                    Message message = new Message(encryptedBytes, Username, targetUsername, hashBytes);
+                    string fileName = $"S-ENCRYPTED{new Random(151).Next(50000).ToString()}.dat";
+                    message.SetFileName(fileName);
                     Stream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Write);
                     System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                     formatter.Serialize(stream, message);
                     stream.Close();
 
                     byte[] signedData = File.ReadAllBytes(fileName);
-                    string cmd = $"/msgto {targetUsername}:{Convert.ToBase64String(signedData)}";
+                    UnicodeEncoding byteConverter = new UnicodeEncoding();
+                    string messageString = byteConverter.GetString(signedData); 
+
+                    string cmd = $"/msgto {targetUsername}:{messageString}";
                     try
                     {
                         this._socket.Send(Encoding.Unicode.GetBytes(cmd), SocketFlags.None);

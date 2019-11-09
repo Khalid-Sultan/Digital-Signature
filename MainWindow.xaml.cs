@@ -29,14 +29,12 @@ namespace Digital_Signature_Verification
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            ServerWindow serverWindow = new ServerWindow();
-            serverWindow.Show();
+            new CoordinatorWindow().Show();
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            ClientWindow clientWindow = new ClientWindow();
-            clientWindow.Show();
+            new UserWindow().Show();
         }
     }
 }

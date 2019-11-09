@@ -20,3 +20,7 @@ A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\S
 A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\ServerWindow.baml
 A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\GeneratedInternalTypeHelper.g.cs
 A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\Digital Signature Verification.csprojAssemblyReference.cache
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\CoordinatorWindow.g.cs
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\UserWindow.g.cs
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\CoordinatorWindow.baml
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\UserWindow.baml

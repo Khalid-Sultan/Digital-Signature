@@ -29,7 +29,7 @@ namespace Digital_Signature_Verification
         public BindingList<User> UsersList { get; set; }
         public BindingList<Message> MessagesList { get; set; }
         public bool IsServerStopped => !this.IsServerActive;
-        public int ActiveClients => UsersList.Count;
+        public int ActiveUsers => UsersList.Count;
 
         public int Port {
             get {
@@ -146,7 +146,7 @@ namespace Digital_Signature_Verification
                     user.Thread.Start();
                 }
                 catch (Exception ex) {
-                    MessageBox.Show(ex.Message, "Error");
+                    MessageBox.Show($"Coordinator : {ex.Message}", "Error");
                 }
             }
         }
@@ -158,7 +158,7 @@ namespace Digital_Signature_Verification
                     key.Sender_Username == this.UsersList[0].Username)
                 )
                 {
-                    MessageBox.Show("Keys are already exchanged.");
+                    MessageBox.Show("Coordinator: Keys are already exchanged.");
                     return;
                 }
 
@@ -173,7 +173,7 @@ namespace Digital_Signature_Verification
 
 
         #region Messaging Methods
-        public void SaveMessages(string toUsername, string messageContent) => this.SendMessageTo(this.UsersList[0], toUsername, messageContent);
+        public void ServerSendMessages(string toUsername, string messageContent) => this.SendMessageTo(this.UsersList[0], toUsername, messageContent);
         private void SendMessageTo(User from, string toUsername, string receivedMessage)
         {  
             foreach (RSA key in Ledger.KeysManifest)
@@ -185,32 +185,37 @@ namespace Digital_Signature_Verification
                 )
                 {
                     bool isSent = false;
+                    UnicodeEncoding byteConverter = new UnicodeEncoding();
+                    byte[] messageBytes = byteConverter.GetBytes(receivedMessage);
                     // if target is server
                     if (toUsername == this.Username)
                     {
-                        byte[] messageBytes = Convert.FromBase64String(receivedMessage);
-                        string fileName = $"ENCRYPTED - {new Random(Seed: 151).Next(500000)}.txt";
+                        string fileName = $"C-ENCRYPTED{new Random(Seed: 151).Next(500000)}.dat";
                         File.WriteAllBytes(fileName, messageBytes);
                         System.Runtime.Serialization.IFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                         Stream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
                         Message message = (Message)formatter.Deserialize(stream);
+                        message.SetFileName(fileName);
                         stream.Close();
                         this.MessagesList.Add(message);
                         isSent = true;
                     }
-                    // if target username is registered
-                    foreach (User user in UsersList)
+                    else
                     {
-                        if (user.Username == toUsername)
+                        // if target username is registered
+                        foreach (User user in UsersList)
                         {
-                            user.SendMessage(Convert.FromBase64String(receivedMessage));
-                            isSent = true;
+                            if (user.Username == toUsername)
+                            {
+                                user.SendMessage(messageBytes);
+                                isSent = true;
+                            }
                         }
                     }
                     // if target username isn't registered
                     if (!isSent)
                     {
-                        MessageBox.Show("**Server**: Error! Username not found, unable to deliver your message"); 
+                        MessageBox.Show("Coordinator: Error! Username not found, unable to deliver your message"); 
                     }
 
                 }
@@ -248,7 +253,7 @@ namespace Digital_Signature_Verification
                                     key.Sender_Username == receiver)
                                 )
                                 {
-                                    MessageBox.Show("Keys are already exchanged.");
+                                    MessageBox.Show("Coordinator: Keys are already exchanged.");
                                     return;
                                 }
                             }
@@ -274,7 +279,7 @@ namespace Digital_Signature_Verification
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Server : {ex.Message.ToString()}");
+                    MessageBox.Show($"Coordinator : {ex.Message.ToString()}");
                     this._dispatcher.Invoke(new Action(() =>
                     {
                         UsersList.Remove(user);
