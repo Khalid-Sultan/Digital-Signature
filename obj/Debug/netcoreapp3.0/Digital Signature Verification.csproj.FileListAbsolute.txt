@@ -22,3 +22,7 @@ A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\D
 A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\Digital Signature Verification.dll
 A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\Digital Signature Verification.pdb
 A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\Digital Signature Verification.csprojAssemblyReference.cache
+A:\VisualStudioProjects\Digital Signature Verification\bin\Debug\netcoreapp3.0\MaterialDesignColors.dll
+A:\VisualStudioProjects\Digital Signature Verification\bin\Debug\netcoreapp3.0\MaterialDesignThemes.Wpf.dll
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\App.baml
+A:\VisualStudioProjects\Digital Signature Verification\obj\Debug\netcoreapp3.0\Digital Signature Verification.csproj.CopyComplete

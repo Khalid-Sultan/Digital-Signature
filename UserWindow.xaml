@@ -3,11 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:Digital_Signature_Verification"
         xmlns:local1="clr-namespace:Digital_Signature_Verification.Utils"
         mc:Ignorable="d" FontSize="14" 
-        Title="User" Height="385.665" Width="442.675">
+        Title="User" Height="600" Width="600" ResizeMode="NoResize">
     <Window.Resources>
         <local1:BooleanToConnectDisconnectConverter x:Key="BooleanToConnectDisconnectConverter" />
         <local1:BooleanToClientStatusMessageConverter x:Key="BooleanToClientStatusMessageConverter" />
@@ -29,67 +30,133 @@
             <Setter Property="Margin" Value="3"/>
         </Style>
     </Window.Resources>
-    <DockPanel Margin="0 10 0 0">
-        <StatusBar Name="sbMain" DockPanel.Dock="Bottom">
+    <Grid Margin="0 10 0 0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StatusBar Name="sbMain" Grid.Row="1" Grid.Column="0">
             <StatusBarItem>
                 <TextBlock Text="{Binding Path=IsClientConnected,Converter={StaticResource BooleanToClientStatusMessageConverter}}" Background="{Binding Path=IsClientConnected,Converter={StaticResource BooleanToBrushConverter}}" Width="auto" Padding="3" />
             </StatusBarItem>
         </StatusBar>
-        <Grid Name="gControl" DockPanel.Dock="Top">
+        <Grid Name="gControl" Grid.Row="0" Grid.Column="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-
-            <TextBlock Grid.Column="0" Grid.Row="0" Text="Socket Address:"/>
-            <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding Path=IpAddress, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Path=IsClientDisconnected}"/>
-            <TextBox Grid.Column="2" Grid.Row="0" Text="{Binding Path=Port, UpdateSourceTrigger=PropertyChanged}" Width="70" IsEnabled="{Binding Path=IsClientDisconnected}"/>
-
-            <TextBlock Grid.Column="0" Grid.Row="1" Text="Username:"/>
-            <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Path=Username, UpdateSourceTrigger=PropertyChanged}"/>
-
-            <Button Name="bSwitchClientState" Grid.Column="3" Grid.Row="0" Grid.RowSpan="2" Content="{Binding Path=IsClientConnected,Converter={StaticResource BooleanToConnectDisconnectConverter}}" Click="bSwitchClientState_Click"/>
-        </Grid>
-        <DockPanel IsEnabled="{Binding Path=IsClientConnected}">
-            <Grid DockPanel.Dock="Top">
+            <Grid Grid.Row="0" Grid.Column="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="0" Grid.Row="0" Text="Target Username:"/>
-                <TextBox Name="tbTargetUsername" Text="Server" Grid.Column="1" Grid.Row="0" Margin="3,3,159,2"/>
-                <Button Name="bExchange" Grid.Column="1" Grid.Row="0" Content="Exchange Keys" Click="bExchange_Click" Margin="162,3.2,4,2.6" Width="Auto"/>
+                <TextBox
+                    Style="{StaticResource MaterialDesignFilledTextFieldTextBox}"
+                    VerticalAlignment="Top"
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
+                    Grid.Column="0" Grid.Row="0"
+                    Text="{Binding Path=IpAddress, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Path=IsClientDisconnected}"
+                    MaxWidth="400"
+                    Margin="10 0"
+                    materialDesign:HintAssist.Hint="IP Address"/>
 
-                <TextBlock Grid.Column="0" Grid.Row="1" Text="Message:"/>
-                <Button Name="tbMessage" Grid.Column="1" Grid.Row="1"  Margin="3,3,160,2" Width="Auto" Click="bBrowse_Click" Content="Browse" IsEnabled="False"/>
+                <TextBox
+                    Style="{StaticResource MaterialDesignFilledTextFieldTextBox}"
+                    VerticalAlignment="Top"
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
+                    Grid.Column="1" Grid.Row="0"
+                    Text="{Binding Path=Port, UpdateSourceTrigger=PropertyChanged}"
+                    IsEnabled="{Binding Path=IsClientDisconnected}"
+                    MaxWidth="400"
+                    Margin="10 0"
+                    materialDesign:HintAssist.Hint="Port"/>
 
-                <Button Name="bSend" Grid.Column="1" Grid.Row="1" Content="Send" Click="bSend_Click" Margin="162,3.2,4,2.6" Width="Auto" IsEnabled="False"/>
+                <TextBox
+                    Style="{StaticResource MaterialDesignFilledTextFieldTextBox}"
+                    VerticalAlignment="Top"
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
+                    Grid.Column="0" Grid.Row="1"
+                    Text="{Binding Path=Username, UpdateSourceTrigger=PropertyChanged}"
+                    MaxWidth="400"
+                    Margin="10 0"
+                    materialDesign:HintAssist.Hint="Username"/>
+
+                <Button
+                    Foreground="#fff"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Margin="10 0"
+                    Content="{Binding Path=IsClientConnected,Converter={StaticResource BooleanToConnectDisconnectConverter}}" Click="bSwitchClientState_Click"
+                    Name="bSwitchClientState" Grid.Column="1" Grid.Row="1" />
+
+
+                <TextBox
+                    Style="{StaticResource MaterialDesignFilledTextFieldTextBox}"
+                    VerticalAlignment="Top"
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap"
+                    Grid.Column="0" Grid.Row="2"
+                    Name="tbTargetUsername" Text="Server" 
+                    MaxWidth="400"
+                    Margin="10 0"
+                    materialDesign:HintAssist.Hint="Send To"/>
+
+
+                <Button
+                    Foreground="#fff"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Margin="10 0"
+                    Content="Exchange Keys" Click="bExchange_Click" 
+                    Name="bExchange" Grid.Column="1" Grid.Row="2" />
+
+                <Button
+                    Foreground="#fff"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Margin="10 0"
+                    Click="bBrowse_Click" Content="Browse" IsEnabled="False"
+                    Name="tbMessage" Grid.Column="0" Grid.Row="3" />
+
+                <Button
+                    Foreground="#fff"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Margin="10 0"
+                    Content="Send" Click="bSend_Click" 
+                    Name="bSend" Grid.Column="1" Grid.Row="3"
+                    IsEnabled="False"/>
+
+
             </Grid>
-            <ListBox x:Name="MessagesListBox" ItemsSource="{Binding Path=Messages}">
-                <ListBox.ItemTemplate>
-                <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <Label x:Name="Sender" Width="125" Content="{Binding Sender_Username}"/>
-                            <Label Content="-> To ->" Width="50"/>
-                            <Label x:Name="Receiver" Width="125"  Content="{Binding Receiver_Username}"/>
-                            <Button x:Name="Open" Width="50" Content="Open" Click="View_Click"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </DockPanel>
-    </DockPanel>
-
+            <Grid Grid.Row="1" Grid.Column="0"  IsEnabled="{Binding Path=IsClientConnected}">
+                <ListBox x:Name="MessagesListBox" ItemsSource="{Binding Path=Messages}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Label x:Name="Sender" Width="125" Content="{Binding Sender_Username}"/>
+                                <Label Content="-> To ->" Width="50"/>
+                                <Label x:Name="Receiver" Width="125"  Content="{Binding Receiver_Username}"/>
+                                <Button
+                                    Style="{StaticResource MaterialDesignRaisedDarkButton}"
+                                    materialDesign:ButtonAssist.CornerRadius="10"
+                                    ToolTip="Open Document"  x:Name="Open" Width="100" Content="Open" Click="View_Click"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Grid>
+    </Grid>
 </Window>

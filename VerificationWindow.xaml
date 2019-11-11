@@ -1,17 +1,36 @@
 ﻿<Window x:Class="Digital_Signature_Verification.VerificationWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Digital_Signature_Verification"
         mc:Ignorable="d"
-        Title="Verification Window" Height="450" Width="600">
-    <DockPanel LastChildFill="True">
-        <Label Content="File Contents" DockPanel.Dock="Top" HorizontalContentAlignment="Center" FontWeight="DemiBold" FontSize="14" Background="AliceBlue"/>
-        <TextBox x:Name="FileContents" Text="TextBox" TextWrapping="Wrap" DockPanel.Dock="Top" Height="360" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" IsReadOnly="False" IsEnabled="True" AcceptsTab="True"/>
-        <StackPanel Orientation="Horizontal"> 
-            <Button x:Name="VerifyButton" DockPanel.Dock="Bottom" Width="300" Content="VERIFY" Click="VerifyButton_Click"/>
-            <Button x:Name="SaveButton" DockPanel.Dock="Bottom" Width="300" Content="SAVE" Click="SaveButton_Click"/>
+        Title="Verification Window" Height="500" Width="600" ResizeMode="NoResize">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Content="Decrypted File Contents" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Center" FontWeight="DemiBold" FontSize="18" Background="AliceBlue"/>
+
+        <TextBox
+            Style="{StaticResource MaterialDesignOutlinedTextFieldTextBox}"
+            VerticalAlignment="Top"
+            AcceptsReturn="True"
+            TextWrapping="Wrap"
+            Height="400"
+            x:Name="FileContents" Grid.Column="0" Grid.Row="1" Text="TextBox" 
+            materialDesign:HintAssist.Hint="This is a text area"
+            VerticalScrollBarVisibility="Auto"/>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" >
+            <Button x:Name="VerifyButton" Width="250" Content="VERIFY"  Margin="25 0" Click="VerifyButton_Click"/>
+            <Button x:Name="SaveButton" Width="250" Content="SAVE"  Margin="25 0" Click="SaveButton_Click"/>
         </StackPanel>
-    </DockPanel>
+    </Grid>
 </Window>
